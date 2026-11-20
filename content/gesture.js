@@ -28,6 +28,10 @@
     gestureVolumeBoostHint: "Boost to $MAX$%",
     gestureUnlockHint: "Swipe down to exit speed",
     gestureLockHint: "Swipe up to lock speed",
+    lockBtnOn: "Playback locked · tap the padlock to release",
+    lockBtnOff: "Playback unlocked",
+    lockBtnPin: "Lock playback",
+    lockBtnRelease: "Unlock playback",
     gestureDragHint: "drag to re-tune",
     gestureReleaseLock: "Release to lock speed",
     gestureReleaseUnlock: "Release to exit speed",
@@ -68,6 +72,10 @@
     gestureVolumeBoostHint: "增强至 $MAX$%",
     gestureUnlockHint: "下滑退出倍速",
     gestureLockHint: "上滑锁定倍速",
+    lockBtnOn: "已锁定播放 · 点锁形按钮解除",
+    lockBtnOff: "已解除播放锁定",
+    lockBtnPin: "锁定播放",
+    lockBtnRelease: "解除播放锁定",
     gestureDragHint: "左右拖动调速",
     gestureReleaseLock: "松开以锁定当前倍速",
     gestureReleaseUnlock: "松开以解除倍速锁定",
@@ -3280,6 +3288,21 @@
   // own button unlocks) takes over from there.
   let pinHost = null, pinBtn = null, pinTimer = 0;
 
+  // Padlock icons drawn as SVG (same visual family as the A-B panel): emoji
+  // 🔒 renders differently on every platform and came out near-invisible at
+  // 44px against the dark chip on some Android builds. Closed shackle = "this
+  // locks", open shackle = "this releases".
+  const LOCK_SVG_CLOSED =
+    '<svg viewBox="0 0 24 24">' +
+    '<rect x="5" y="10.5" width="14" height="9.5" rx="2.4"/>' +
+    '<path d="M8 10.5V7.6a4 4 0 0 1 8 0v2.9"/>' +
+    '<path d="M12 14.4v2.2"/></svg>';
+  const LOCK_SVG_OPEN =
+    '<svg viewBox="0 0 24 24">' +
+    '<rect x="5" y="10.5" width="14" height="9.5" rx="2.4"/>' +
+    '<path d="M8 10.5V7.6a4 4 0 0 1 7.9-.9"/>' +
+    '<path d="M12 14.4v2.2"/></svg>';
+
   function buildPin() {
     if (pinHost) return;
     pinHost = document.createElement("div");
@@ -3292,14 +3315,16 @@
         background:rgba(0,0,0,.5);color:#fff;line-height:1;cursor:pointer;opacity:.45;
         pointer-events:auto;transition:opacity .18s;font-family:inherit}
       .btn:hover,.btn:focus-visible{opacity:.95}
+      .btn svg{width:46%;height:46%;display:block;fill:none;stroke:currentColor;stroke-width:2;
+        stroke-linecap:round;stroke-linejoin:round}
     `;
     root.appendChild(st);
     pinBtn = document.createElement("button");
     pinBtn.className = "btn";
     pinBtn.type = "button";
-    pinBtn.textContent = "🔒";
-    pinBtn.title = "Lock playback";
-    pinBtn.setAttribute("aria-label", "Lock playback");
+    pinBtn.innerHTML = LOCK_SVG_CLOSED;
+    pinBtn.title = t("lockBtnPin");
+    pinBtn.setAttribute("aria-label", t("lockBtnPin"));
     pinBtn.addEventListener("click", (e) => {
       e.stopPropagation(); e.preventDefault();
       setLock(true);
@@ -3363,8 +3388,11 @@
     st.textContent = `
       .veil{position:absolute;inset:0;background:transparent;cursor:not-allowed}
       .btn{position:absolute;bottom:26px;width:52px;height:52px;border-radius:50%;border:0;
-        background:rgba(0,0,0,.55);color:#fff;font-size:22px;cursor:pointer;opacity:.6}
+        background:rgba(0,0,0,.55);color:#fff;font-size:22px;cursor:pointer;opacity:.6;
+        display:flex;align-items:center;justify-content:center}
       .btn:hover{opacity:1}
+      .btn svg{width:46%;height:46%;display:block;fill:none;stroke:currentColor;stroke-width:2;
+        stroke-linecap:round;stroke-linejoin:round}
       .btn.left{left:20px} .btn.right{right:20px}
       .quick{position:absolute;left:50%;bottom:28px;transform:translateX(-50%);display:flex;gap:18px}
       .quick button{width:48px;height:48px;border-radius:50%;border:0;background:rgba(0,0,0,.55);
@@ -3374,8 +3402,10 @@
     const veil = document.createElement("div"); veil.className = "veil";
     veil.addEventListener("click", (e) => { e.stopPropagation(); e.preventDefault(); });
     lockRoot.appendChild(veil);
-    const btn = document.createElement("button"); btn.className = "btn"; btn.textContent = "🔒";
-    btn.title = "Unlock playback";
+    const btn = document.createElement("button"); btn.className = "btn";
+    btn.innerHTML = LOCK_SVG_OPEN;
+    btn.title = t("lockBtnRelease");
+    btn.setAttribute("aria-label", t("lockBtnRelease"));
     btn.addEventListener("click", (e) => {
       e.stopPropagation(); e.preventDefault(); setLock(false);
     });
@@ -3412,7 +3442,7 @@
     // locked and comes back the moment the overlay is dismissed.
     if (on) { if (pinHost) pinHost.style.display = "none"; }
     else updatePin();
-    showHint(on ? "🔒 Locked" : "🔓 Unlocked");
+    showHint(on ? t("lockBtnOn") : t("lockBtnOff"));
   }
 
   // auto-rotate to landscape when entering fullscreen (mobile only; best-effort)

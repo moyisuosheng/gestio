@@ -68,6 +68,18 @@
   "gestureLockHint": {
     "message": "上滑锁定倍速"
   },
+  "lockBtnOn": {
+    "message": "已锁定播放 · 点锁形按钮解除"
+  },
+  "lockBtnOff": {
+    "message": "已解除播放锁定"
+  },
+  "lockBtnPin": {
+    "message": "锁定播放"
+  },
+  "lockBtnRelease": {
+    "message": "解除播放锁定"
+  },
   "abLoopEnabled": {
     "message": "A-B 循环已启用"
   },

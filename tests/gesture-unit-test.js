@@ -1836,6 +1836,53 @@ async function main() {
     check('[lockpin] no button when the feature is off', !off);
   }
 
+  // --- lock button icon + hint (1.0.38) --------------------------------------
+  // The button was a 🔒 emoji (different on every platform, invisible on some
+  // Android builds) and the tap hint was a hardcoded English "🔒 Locked" —
+  // localized hints existed for the swipe locks but never for this button.
+  {
+    const mk = async (over) => {
+      const env = makeEnv(over);
+      env.window.eval(src);
+      await sleep(80);
+      return env;
+    };
+    const hintText = (env) => {
+      const hud = env.window.document.querySelector('[data-gestio="hud"]');
+      const h = hud && hud.shadowRoot && hud.shadowRoot.querySelector(".hint");
+      return (h && h.textContent || "").trim();
+    };
+    const env = await mk({ gestureLockEnabled: true, language: "zh_CN" });
+    const pinHost = env.window.document.querySelector('[data-gestio="lockpin"]');
+    const pinBtn = pinHost && pinHost.shadowRoot.querySelector("button");
+    check('[lockbtn] the pinned button draws an SVG padlock',
+      !!pinBtn && pinBtn.querySelector("svg") !== null && !/🔒/.test(pinBtn.textContent),
+      pinBtn && pinBtn.innerHTML.slice(0, 60));
+    check('[lockbtn] the pinned button label is localized',
+      !!pinBtn && pinBtn.getAttribute("aria-label") === "锁定播放",
+      pinBtn && pinBtn.getAttribute("aria-label"));
+
+    pinBtn.dispatchEvent(new env.window.MouseEvent("click", { bubbles: true, cancelable: true }));
+    await sleep(60);
+    const overlay = env.window.document.querySelector('[data-gestio="lock"]');
+    check('[lockbtn] tapping the pin raises the lock overlay', !!overlay && overlay.style.display === "block",
+      overlay && overlay.style.display);
+    const relBtn = overlay && overlay.shadowRoot.querySelector(".btn");
+    check('[lockbtn] the overlay button is an open padlock, localized',
+      !!relBtn && relBtn.querySelector("svg") !== null &&
+      relBtn.getAttribute("aria-label") === "解除播放锁定",
+      relBtn && relBtn.getAttribute("aria-label"));
+    check('[lockbtn] locking hints in the UI language, not hardcoded English',
+      hintText(env).indexOf("已锁定播放") === 0, hintText(env));
+
+    relBtn.dispatchEvent(new env.window.MouseEvent("click", { bubbles: true, cancelable: true }));
+    await sleep(60);
+    check('[lockbtn] unlocking hints in the UI language',
+      hintText(env) === "已解除播放锁定", hintText(env));
+    check('[lockbtn] the overlay is gone after unlocking',
+      !overlay || overlay.style.display === "none", overlay && overlay.style.display);
+  }
+
   // --- A-B bar placement + drag (1.0.28, reworked in 1.0.29) -----------------
   // The bar used to be positioned from a hard-coded 292px width (its real width
   // was nearer 380px), never scaled, and its position was stored as a centre

@@ -2,6 +2,19 @@
 
 All notable changes to Gestio. The extension version in `manifest.json` follows this file.
 
+## 1.0.38 — 2026-11-21
+
+- **The lock button is a drawn padlock now, and it speaks your language.** The
+  pinned lock button and the overlay's unlock button were 🔒 emoji — rendered
+  differently on every platform and near-invisible on some Android builds —
+  and tapping the button popped a hardcoded English "🔒 Locked" hint while
+  every other hint in the extension localized itself. Both icons are now SVG
+  strokes in the same family as the A-B panel icons: a closed shackle on the
+  pinned button, an open shackle on the overlay's unlock button, so the two
+  states read at a glance. The hint (and the buttons' `title`/`aria-label`,
+  which were English-only) follow the interface language — Chinese shows
+  「已锁定播放 · 点锁形按钮解除」/「已解除播放锁定」.
+
 ## 1.0.37 — 2026-11-21
 
 - **"Loop count" shows its number again.** The field existed in

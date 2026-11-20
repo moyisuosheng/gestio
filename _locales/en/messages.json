@@ -68,6 +68,18 @@
   "gestureLockHint": {
     "message": "Swipe up to lock speed"
   },
+  "lockBtnOn": {
+    "message": "Playback locked · tap the padlock to release"
+  },
+  "lockBtnOff": {
+    "message": "Playback unlocked"
+  },
+  "lockBtnPin": {
+    "message": "Lock playback"
+  },
+  "lockBtnRelease": {
+    "message": "Unlock playback"
+  },
   "abLoopEnabled": {
     "message": "A-B Loop enabled"
   },
