@@ -2367,6 +2367,71 @@ async function main() {
       env.seeks.length === 0, JSON.stringify(env.seeks));
   }
 
+  // --- a stale card press must not eat the page's touch layer (1.0.35) ----
+  // Going fullscreen while a finger is on the A-B card cancels the pointer
+  // sequence, and Android does not always deliver the cancel. `press` then
+  // stayed set, and the card's window-capture touch handler swallowed EVERY
+  // touch on the page — on mobile fullscreen, where the pointer stream is
+  // ignored on purpose, that killed brightness / volume swipes and the long
+  // press until the card happened to be pressed again.
+  {
+    const env = makeEnv({ abLoopEnabled: true, nonFullscreenVertical: "always" },
+      { mobile: true, config: { a: 10, b: 20 } });
+    env.window.eval(src);
+    await sleep(240);
+    const panel = env.window.document.querySelector('[data-gestio="abpanel"]');
+    check("[ab] the card is up for the stale-press test", !!panel, panel ? "yes" : "no");
+    const box = panel && panel.shadowRoot && panel.shadowRoot.querySelector(".box");
+    // Press the card and never release it: that is the lost-end state.
+    fire(env, "pointerdown", 10, 10, { target: box });
+    await sleep(120);
+    // Longer than the press fuse (2.5s), so the press must be treated as dead.
+    await sleep(2600);
+    // A brightness swipe on the left half has to reach the gesture layer.
+    touch(env, "touchstart", 120, 220);
+    touch(env, "touchmove", 120, 520);
+    touch(env, "touchend", 120, 520);
+    await sleep(60);
+    check("[ab] a stale card press does not swallow the page's touch stream",
+      /brightness\(0?\.\d+\)|brightness\(1\)/.test(env.v.style.filter), env.v.style.filter || "(none)");
+  }
+
+  // --- the untrusted pointer stream must not end a touch hold (1.0.35) ----
+  // In mobile native fullscreen the pointer sequence is cancelled the moment
+  // the player takes the surface, while the touch stream keeps holding. That
+  // cancel used to end the speed hold (rate restored, tier row hidden) even
+  // though the finger had not moved.
+  {
+    const env = makeEnv({ longPressEnabled: true, longPressSpeed: 3 }, { mobile: true });
+    Object.defineProperty(env.window.document, "fullscreenElement",
+      { get: () => env.window.document.documentElement, configurable: true });
+    env.window.eval(src);
+    await sleep(180);
+    const hud = () => env.window.document.querySelector('[data-gestio="hud"]');
+    const tiers = () => {
+      const h = hud();
+      return (h && h.shadowRoot) ? h.shadowRoot.querySelector(".tiers") : null;
+    };
+    touch(env, "touchstart", 640, 360);
+    await sleep(620);  // longPressDelayMobile = 450ms
+    check("[lp] a still finger in mobile fullscreen holds the speed",
+      Math.abs(env.v.playbackRate - 3) < 0.01, "rate=" + env.v.playbackRate);
+    check("[lp] ...and the tier row is up", !!tiers() && tiers().classList.contains("show"),
+      tiers() ? tiers().className : "missing");
+    // The stray cancel from the stream we never accepted.
+    fire(env, "pointercancel", 640, 360);
+    await sleep(160);
+    check("[lp] a stray pointercancel does not end the hold",
+      Math.abs(env.v.playbackRate - 3) < 0.01, "rate=" + env.v.playbackRate);
+    check("[lp] ...nor hide the tier row",
+      !!tiers() && tiers().classList.contains("show"), tiers() ? tiers().className : "missing");
+    // The real release still ends it.
+    touch(env, "touchend", 640, 360);
+    await sleep(160);
+    check("[lp] the release still ends the hold",
+      Math.abs(env.v.playbackRate - 1) < 0.01, "rate=" + env.v.playbackRate);
+  }
+
   const passed = results.filter(r=>r.pass).length;
   console.log(`\n${passed}/${results.length} passed`);
   process.exit(passed===results.length?0:1);

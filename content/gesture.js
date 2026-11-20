@@ -1983,6 +1983,11 @@
     let press = null, dragging = false, holdTimer = 0, justDragged = false, suppressTimer = 0;
     const DRAG_SLOP = 5, HOLD_MS = 260;
     const clearHold = () => { if (holdTimer) { clearTimeout(holdTimer); holdTimer = 0; } };
+    // How long a press may stay silent before it is treated as one whose end
+    // event never arrived. Same fuse as startPress: it only has to catch a
+    // lost pointerup, so it is far longer than any real pause on a control.
+    const PRESS_IDLE_MS = 2500;
+    const pressLive = () => !!press && (Date.now() - (press.lastMove || press.at || 0)) < PRESS_IDLE_MS;
     // Where the card sits in its own coordinate space, plus how much the
     // container scales it. Some players run fullscreen inside a transformed
     // box, where `left` and `clientX` are not in the same units; the ratio
@@ -2070,6 +2075,7 @@
       e.stopPropagation();
       if (press.id != null && e.pointerId != null && e.pointerId !== press.id) return;
       press.lx = e.clientX; press.ly = e.clientY;
+      press.lastMove = Date.now();
       if (!dragging) {
         if (Math.abs(e.clientX - press.x) + Math.abs(e.clientY - press.y) < DRAG_SLOP) return;
         // Moving off a button before the hold keeps it a button stroke; the hold
@@ -2138,7 +2144,7 @@
         cancelStroke();
       }
       press = {
-        id, x, y, lx: x, ly: y, at: Date.now(),
+        id, x, y, lx: x, ly: y, at: Date.now(), lastMove: Date.now(),
         base: null, ax: x, ay: y, armed, foreign: false
       };
       window.addEventListener("pointermove", onMove, true);
@@ -2237,7 +2243,20 @@
     // absolute, so a stroke seen on both streams still moves the card once.
     const swallowTouch = (e) => {
       const t = (e.touches && e.touches[0]) || (e.changedTouches && e.changedTouches[0]) || e;
-      if (!press && !panelHolds(t.clientX, t.clientY)) return;
+      // A press whose pointerup never arrived (a fullscreen transition cancels
+      // the sequence, and Android does not always deliver the cancel) used to
+      // keep this handler swallowing EVERY touch on the page: `stopPropagation`
+      // at the window's capture phase means the gesture layer never sees the
+      // touch stream at all, and on mobile fullscreen — where the pointer
+      // stream is deliberately ignored — that killed brightness / volume swipes
+      // and the long press until the card was pressed again. Expire it instead.
+      const live = pressLive();
+      if (press && !live) cancelStroke();
+      // touchstart may start a stroke the window never saw (the top-layer
+      // fallback): a finger that lands on the card still belongs to it. Moves and
+      // releases only belong to it once such a stroke actually exists.
+      const target = e.type === "touchstart" || e.type === "touchcancel";
+      if (!live && !(target && panelHolds(t.clientX, t.clientY))) return;
       // Nothing below the window is allowed to read this finger (see
       // onPanelDown).
       e.stopPropagation();
@@ -3029,6 +3048,13 @@
     // from the "other" input stream (Android cancels the touch stream but the
     // gesture was claimed by pointer, and vice versa).
     if (!force && source && s.source && source !== s.source) return;
+    // ...except in the one case where the other stream is known to be wrong:
+    // mobile native fullscreen ignores the pointer stream at onStart because it
+    // is incomplete there (no move/up, and a cancel as soon as the player takes
+    // the surface). Letting that cancel through ended a hold that was still
+    // running on the touch stream — the speed dropped back and the tier row
+    // disappeared while the finger had not moved.
+    if (source === "pointer" && s.source === "touch" && isMobile && fullscreenEl()) return;
     clearTimeout(s.longPressTimer);
     // release the pause guard installed on gesture start
     if (s.pauseGuard && vid) {
@@ -3499,13 +3525,24 @@
     // Hard safety net for the speed-tier row: whichever input stream ended the
     // stroke — or even if the end event never reached onEnd because Android
     // swallowed the touch stream — the row must never outlive the finger.
-    const dropTiers = () => hideTiers();
+    //
+    // "Whichever" only means the stream that is driving the stroke: on Android
+    // the pointer sequence is cancelled the moment the player takes the surface,
+    // while the touch stream keeps holding, and that stray cancel used to hide
+    // the row mid-hold (the speed looked like it had given up).
+    const streamHolds = (e) => {
+      const cur = currentStroke();
+      if (!cur || !cur.s || !cur.s.active || !cur.s.source) return false;
+      const touchEvt = e && typeof e.type === "string" && e.type.indexOf("touch") === 0;
+      return (touchEvt ? "touch" : "pointer") !== cur.s.source;
+    };
+    const dropTiers = (e) => { if (!streamHolds(e)) hideTiers(); };
     ["pointerup", "pointercancel", "touchend", "touchcancel", "mouseup"]
       .forEach((evt) => document.addEventListener(evt, dropTiers, true));
-    const dropSeek = () => hideSeekCard();
+    const dropSeek = (e) => { if (!streamHolds(e)) hideSeekCard(); };
     ["pointercancel", "touchcancel", "mouseup"].forEach((evt) => document.addEventListener(evt, dropSeek, true));
-    window.addEventListener("blur", dropTiers, true);
-    window.addEventListener("blur", dropSeek, true);
+    window.addEventListener("blur", () => hideTiers(), true);
+    window.addEventListener("blur", () => hideSeekCard(), true);
     document.addEventListener("visibilitychange", () => { if (document.hidden) { hideTiers(); hideSeekCard(); } });
     // A player that inserts its <video> after load (most SPA players) never had
     // touch-action set: (re)apply when a media element becomes usable.

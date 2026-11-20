@@ -2,6 +2,29 @@
 
 All notable changes to Gestio. The extension version in `manifest.json` follows this file.
 
+## 1.0.35 — 2026-11-21
+
+- **A touched card can no longer kill the touch layer.** A press on the A-B
+  card is owned by the card through a window-capture handler that stops every
+  touch on the page — that is what keeps a drag from driving the player. But
+  the press was only released by a `pointerup`, and a fullscreen transition
+  cancels that sequence without always delivering the cancel. The press then
+  stayed set, and every later touch anywhere on the page was swallowed before
+  the gesture layer saw it: in mobile fullscreen, where the pointer stream is
+  deliberately ignored, brightness and volume swipes and the long press all went
+  dead until the card happened to be pressed again. A press that has been silent
+  for 2.5s is now treated as dead and dropped, and moves / releases are only
+  swallowed while a press is actually live.
+- **A cancelled pointer sequence no longer ends a touch hold.** On Android the
+  pointer stream is cancelled as soon as the player takes the surface, while the
+  touch stream keeps holding. That cancel used to end the long-press speed hold
+  — the rate dropped back and the tier row disappeared with the finger still
+  down. Mobile fullscreen already ignores the pointer stream when a gesture
+  starts; it now also ignores its ends for a stroke the touch stream is driving.
+- **The tier row follows the same rule**: a `pointercancel` from the stream that
+  is not driving the stroke no longer hides the speed row mid-hold (same for the
+  seek preview).
+
 ## 1.0.34 — 2026-11-21
 
 - **A-B loop can stop itself after N passes.** Two controls in Settings >
