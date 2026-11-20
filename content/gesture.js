@@ -36,6 +36,7 @@
     abLoopCleared: "Loop cleared",
     abLoopTooShort: "Too short (min 0.5s)",
     abLoopMaxReached: "Loop stopped · count reached",
+    abMarksReady: "tap ⟳ or press P to loop",
     abGuideSetA: "Mark loop start",
     abGuideSetB: "Mark loop end",
     abStart: "Start A-B loop",
@@ -75,6 +76,7 @@
     abLoopCleared: "循环已清除",
     abLoopTooShort: "区间太短（最小 0.5 秒）",
     abLoopMaxReached: "已达设定次数 · 循环停止",
+    abMarksReady: "点 ⟳ 或按 P 开始循环",
     abGuideSetA: "标记循环起点",
     abGuideSetB: "标记循环终点",
     abStart: "开始 A-B 循环",
@@ -584,6 +586,11 @@
   // 3. HUD (overlay created with Shadow DOM to avoid page CSS conflicts)
   // ---------------------------------------------------------------------------
   let hud, hudRoot, hintEl, centerEl, tiersEl = null;
+  // The dim layer for the brightness gesture. Lives inside the HUD shadow root
+  // as its first child, so it paints under every other HUD element but above
+  // the page (and above the video — see setBrightness for why a filter on the
+  // <video> itself is not enough).
+  let brightVeil = null;
   // Geometry of the box every on-video element is laid out in. Fullscreen:
   // the viewport. Windowed: the video's own rect, clamped to the viewport —
   // a fixed, viewport-sized overlay put the side indicator at right:3vw, which
@@ -928,8 +935,19 @@
         transition:opacity .18s ease,transform .18s ease}
       .lockbadge svg{flex:none;opacity:.92}
       .lockbadge.show{opacity:1;transform:translateX(-50%) scale(1)}
+      /* Brightness veil. Dimming with a CSS filter on the <video> is invisible
+         in Android native fullscreen: the frames are handed straight to a
+         hardware surface the CSS pipeline never touches, so the meter moved
+         while the picture stayed exactly as bright. This black veil sits in
+         the HUD, which does render above that surface, so dimming is always
+         visible; the filter on the element is kept only for the >100% side,
+         where a black overlay has nothing to offer. */
+      .bright-veil{position:absolute;inset:0;background:#000;opacity:0;pointer-events:none}
     `;
     hudRoot.appendChild(style);
+    brightVeil = document.createElement("div");
+    brightVeil.className = "bright-veil";
+    hudRoot.insertBefore(brightVeil, hudRoot.firstChild);
     hintEl = document.createElement("div"); hintEl.className = "hint";
     centerEl = document.createElement("div"); centerEl.className = "center";
     tiersEl = document.createElement("div"); tiersEl.className = "tiers";
@@ -1434,10 +1452,24 @@
   const brightnessCache = new WeakMap();
   function setBrightness(v, pct) {
     pct = clamp(pct, S ? S.brightnessMin : 5, S ? S.brightnessMax : 100);
-    let base = filterCache.get(v);
-    if (base === undefined) { base = v.style.filter || ""; filterCache.set(v, base); }
-    const cleaned = base.replace(/brightness\([^)]*\)\s*/g, "").trim();
-    v.style.filter = (cleaned ? cleaned + " " : "") + `brightness(${pct / 100})`;
+    // Dimming is drawn by the HUD veil (see .bright-veil); the filter on the
+    // element is only kept for the brightening side, where a black overlay
+    // cannot help. The two must never stack, so crossing 100% in either
+    // direction cleans up after the other one.
+    if (!hud) ensureHud();
+    if (brightVeil) brightVeil.style.opacity = pct < 100 ? ((100 - pct) / 100).toFixed(3) : "0";
+    if (pct > 100) {
+      let base = filterCache.get(v);
+      if (base === undefined) { base = v.style.filter || ""; filterCache.set(v, base); }
+      const cleaned = base.replace(/brightness\([^)]*\)\s*/g, "").trim();
+      v.style.filter = (cleaned ? cleaned + " " : "") + `brightness(${pct / 100})`;
+    } else if (/brightness\(/.test(v.style.filter || "")) {
+      // Dropping back to <=100% must also remove a filter an earlier stroke
+      // (or a >100% pass) left behind.
+      if (!filterCache.has(v)) filterCache.set(v, v.style.filter || "");
+      const cleaned = filterCache.get(v).replace(/brightness\([^)]*\)\s*/g, "").trim();
+      v.style.filter = cleaned;
+    }
     brightnessCache.set(v, pct);
     return pct;
   }
@@ -1620,13 +1652,20 @@
     if (!v) return;
     AB.video = v; AB.a = v.currentTime;
     if (AB.b !== null && AB.b - AB.a < 0.5) { showHint(t("abLoopTooShort")); AB.a = Math.max(0, AB.b - 0.5); }
-    // With only A recorded there is nothing to loop yet, so the button stays
-    // "off" instead of showing a green ring that does not repeat anything.
-    if (AB.b !== null && AB.b > AB.a) AB.phase = "LOOPING";
-    else AB.phase = "A_SET";
-    AB.on = AB.phase === "LOOPING"; AB.loopCount = 0;
-    persistAB(); abWatch(); updateABPanel();
-    showHint(t("abGuideSetA") + ": " + fmtTime(AB.a)); vibrate();
+    // Marks only: A and B place the window, they never start the repeat. A
+    // loop that is already running simply keeps going with the new mark (its
+    // phase stays LOOPING); otherwise the button waits in its off state until
+    // it is pressed — or P is hit.
+    if (AB.on) { AB.phase = "LOOPING"; abWatch(); }
+    else {
+      AB.phase = (AB.b !== null && AB.b > AB.a) ? "READY" : "A_SET";
+      cancelAnimationFrame(AB.raf);
+    }
+    AB.loopCount = 0;
+    persistAB(); updateABPanel();
+    const both = AB.a !== null && AB.b !== null && AB.b > AB.a;
+    showHint(t("abGuideSetA") + ": " + fmtTime(AB.a) + (!AB.on && both ? " · " + t("abMarksReady") : ""));
+    vibrate();
   };
   const abSetB = () => {
     const v = AB.video || findVideo(innerWidth / 2, innerHeight / 2);
@@ -1639,9 +1678,16 @@
       if (AB.a > AB.b) { const x = AB.a; AB.a = AB.b; AB.b = x; }
       else { showHint(t("abLoopTooShort")); AB.b = Math.min(v.duration, AB.a + 0.5); }
     }
-    AB.phase = "LOOPING"; AB.on = true; AB.loopCount = 0;
-    persistAB(); abWatch(); updateABPanel();
-    showHint(t("abGuideSetB") + ": " + fmtTime(AB.b)); vibrate();
+    // Same rule as A: recording the end never starts the repeat by itself.
+    if (AB.on) { AB.phase = "LOOPING"; abWatch(); }
+    else {
+      AB.phase = AB.b > AB.a ? "READY" : "A_SET";
+      cancelAnimationFrame(AB.raf);
+    }
+    AB.loopCount = 0;
+    persistAB(); updateABPanel();
+    showHint(t("abGuideSetB") + ": " + fmtTime(AB.b) + (AB.on ? "" : " · " + t("abMarksReady")));
+    vibrate();
   };
   // One button, two states: looping or not. There used to be a third (pause),
   // and a press on the running button only paused it — the card then showed a

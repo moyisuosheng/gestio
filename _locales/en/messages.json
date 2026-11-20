@@ -83,6 +83,9 @@
   "abLoopMaxReached": {
     "message": "Loop stopped · count reached"
   },
+  "abMarksReady": {
+    "message": "tap ⟳ or press P to loop"
+  },
   "abGuideSetA": {
     "message": "Mark loop start"
   },

@@ -83,6 +83,9 @@
   "abLoopMaxReached": {
     "message": "已达设定次数 · 循环停止"
   },
+  "abMarksReady": {
+    "message": "点 ⟳ 或按 P 开始循环"
+  },
   "abGuideSetA": {
     "message": "标记循环起点"
   },

@@ -125,6 +125,11 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 const tap = (env, el) => el.dispatchEvent(new env.window.MouseEvent("click", {
   bubbles: true, cancelable: true, composed: true
 }));
+// The brightness dim layer inside the HUD shadow root (see .bright-veil).
+const veilOp = (env) => {
+  const hud = env.window.document.querySelector('[data-gestio="hud"]');
+  return parseFloat((hud && hud.shadowRoot.querySelector('.bright-veil').style.opacity) || '0');
+};
 // The tucked-away flag lives in one sessionStorage entry holding the pages of
 // this tab that hid the card (see AB_HIDDEN_STORE in gesture.js).
 const AB_STORE = "gestio:abpanel";
@@ -294,15 +299,19 @@ async function main() {
     check(`[${tag}] volume scales with travel, not per frame`,
       Math.abs(env.v.volume-expectVol) < 0.08, `volume=${env.v.volume.toFixed(3)} expected≈${expectVol.toFixed(3)}`);
 
-    // same rule for brightness (left zone), which also drives the CSS filter
+    // same rule for brightness (left zone). Dimming is drawn by the HUD veil,
+    // not by a CSS filter on the <video>: in Android native fullscreen the
+    // frames go to a hardware surface the filter never reaches, which is why
+    // the meter used to move while the picture stayed put.
     fire(env,'pointerdown',200,300);
     for (let y=300;y<=500;y+=50){ fire(env,'pointermove',200,y); await sleep(8); }
     fire(env,'pointerup',200,500);
     await sleep(60);
-    const bright = Number((/(\d+(?:\.\d+)?)/.exec(env.v.style.filter)||[0,1])[1]);
-    const expectBright = 1 - 200/720;
-    check(`[${tag}] brightness scales with travel, not per frame`,
-      Math.abs(bright-expectBright) < 0.1, `filter=${env.v.style.filter}`);
+    const expectDim = (200/720) * 0.95; // travel × (max-min) range, as veil opacity
+    check(`[${tag}] brightness dims through the veil, scaled by travel`,
+      Math.abs(veilOp(env)-expectDim) < 0.1, `veil=${veilOp(env)}`);
+    check(`[${tag}] the veil took over, so the video filter stays clean`,
+      !/brightness\(/.test(env.v.style.filter), 'filter=' + env.v.style.filter);
 
     // 6. A-B loop keyboard shortcuts (configurable, shifted punctuation)
     const K = env.window.document;
@@ -1098,7 +1107,7 @@ async function main() {
     env.v.style.filter = "";
     await swipeDown(200);
     check('[lock] brightness still works while only volume is locked',
-      /brightness\(0\./.test(env.v.style.filter), 'filter=' + env.v.style.filter);
+      veilOp(env) > 0.1, 'veil=' + veilOp(env));
 
     // ...while horizontal seek keeps working in the same locked state
     env.v.currentTime = 200; env.seeks.length = 0;
@@ -1116,16 +1125,16 @@ async function main() {
     await swipeUp(1000);
     check('[lock] tapping the left half locks brightness too',
       Math.abs(env.v.volume - 0.5) < 0.001, 'volume=' + env.v.volume);
-    const filterBefore = env.v.style.filter;
+    const veilBefore = veilOp(env);
     await swipeDown(200);
     check('[lock] brightness is blocked once it is locked as well',
-      env.v.style.filter === filterBefore, 'filter=' + env.v.style.filter);
+      veilOp(env) === veilBefore, 'veil=' + veilOp(env));
 
     // a locked half releases on its own, leaving the other half locked
     await leftHalfTap();
     await swipeDown(200);
     check('[lock] tapping a locked half releases only that slider',
-      env.v.style.filter !== filterBefore, 'filter=' + env.v.style.filter);
+      veilOp(env) !== veilBefore, 'veil=' + veilOp(env));
     env.v.volume = 0.5;
     await swipeUp(1000);
     check('[lock] the other half stays locked in the meantime',
@@ -1158,7 +1167,7 @@ async function main() {
     fire(env, 'pointerup', 200, 300);
     await sleep(40);
     check('[lock] a new page starts from the stored state (brightness locked)',
-      env.v.style.filter === "", 'filter=' + env.v.style.filter);
+      veilOp(env) === 0, 'veil=' + veilOp(env));
 
     env.v.volume = 0.5;
     fire(env, 'pointerdown', 1000, 300);
@@ -1914,7 +1923,8 @@ async function main() {
     const kd = (key) => env.window.document.dispatchEvent(new env.window.KeyboardEvent('keydown', {
       bubbles: true, cancelable: true, key }));
     env.v.currentTime = 100; kd('['); await sleep(10);
-    env.v.currentTime = 140; kd(']'); await sleep(30);
+    env.v.currentTime = 140; kd(']'); await sleep(10);
+    kd('p'); await sleep(30); // A/B only mark; P (the loop toggle) starts it
     check('[ab] a running loop uses the looping opacity',
       Math.abs(parseFloat(box.style.opacity) - 0.4) < 0.02, box.style.opacity);
 
@@ -1961,7 +1971,8 @@ async function main() {
     const kd = (key) => env.window.document.dispatchEvent(new env.window.KeyboardEvent('keydown', {
       bubbles: true, cancelable: true, key }));
     env.v.currentTime = 100; kd('['); await sleep(10);
-    env.v.currentTime = 120; kd(']'); await sleep(30);
+    env.v.currentTime = 120; kd(']'); await sleep(10);
+    kd('p'); await sleep(30); // marks do not start the loop; the toggle does
     const sr = env.window.document.querySelector('[data-gestio="abpanel"]').shadowRoot;
     check('[ab] the bar reads out both points',
       /A 0:01:40/.test(sr.getElementById('ta').textContent) && /B 0:02:00/.test(sr.getElementById('tb').textContent),
@@ -2041,7 +2052,8 @@ async function main() {
     const p3 = env3.window.document.querySelector('[data-gestio="abpanel"]');
     const kd3 = (key) => env3.window.document.dispatchEvent(new env3.window.KeyboardEvent("keydown", { bubbles: true, cancelable: true, key }));
     env3.v.currentTime = 100; kd3("["); await sleep(20);
-    env3.v.currentTime = 130; kd3("]"); await sleep(60);
+    env3.v.currentTime = 130; kd3("]"); await sleep(10);
+    kd3("p"); await sleep(60); // the loop toggle, not the B mark, starts it
     tap(env3, p3.shadowRoot.getElementById("hide"));
     await sleep(80);
     env3.seeks.length = 0;
@@ -2249,6 +2261,57 @@ async function main() {
       sr.getElementById("loop").getAttribute("data-state"));
   }
 
+  // --- A and B are marks, not a start button (1.0.36) ----------------------
+  // Setting A, then B, used to flip the loop on by itself: the user was still
+  // placing the window when the video started jumping back to A under them.
+  {
+    const env = makeEnv({ abLoopEnabled: true });
+    env.window.eval(src);
+    await sleep(200);
+    const panel = () => env.window.document.querySelector('[data-gestio="abpanel"]').shadowRoot;
+    env.v.currentTime = 100;
+    tap(env, panel().getElementById("a"));
+    await sleep(40);
+    env.v.currentTime = 130;
+    tap(env, panel().getElementById("b"));
+    await sleep(40);
+    check("[ab] setting A and B leaves the loop off",
+      panel().getElementById("loop").getAttribute("data-state") === "off",
+      panel().getElementById("loop").getAttribute("data-state"));
+    env.v.currentTime = 130.4;
+    env.seeks.length = 0;   // the assignment above is recorded too; only a lap counts
+    await sleep(340);
+    check("[ab] ...and nothing repeats on its own", env.seeks.length === 0,
+      JSON.stringify(env.seeks));
+    // The loop button is what starts it; a re-mark while it runs must not stop
+    // it either — B moving further out is an edit, not a stop request.
+    tap(env, panel().getElementById("loop"));
+    await sleep(80);
+    check("[ab] the loop button is what starts it",
+      panel().getElementById("loop").getAttribute("data-state") === "on",
+      panel().getElementById("loop").getAttribute("data-state"));
+    const lap = async () => {
+      const t0 = Date.now();
+      while (Date.now() - t0 < 1500) {
+        if (env.seeks.some((x) => Math.abs(x - 100) < 0.3)) return true;
+        await sleep(40);
+      }
+      return false;
+    };
+    env.seeks.length = 0;
+    env.v.currentTime = 130.4;
+    check("[ab] ...and it laps", await lap(), JSON.stringify(env.seeks.slice(-3)));
+    env.seeks.length = 0;
+    env.v.currentTime = 140;
+    tap(env, panel().getElementById("b"));
+    await sleep(40);
+    check("[ab] re-marking B mid-loop keeps it running",
+      panel().getElementById("loop").getAttribute("data-state") === "on",
+      panel().getElementById("loop").getAttribute("data-state"));
+    check("[ab] ...and it keeps lapping in the new window", await lap(),
+      JSON.stringify(env.seeks.slice(-3)));
+  }
+
   // --- a card drag must not drive the player behind it (1.0.32) -----------
   // On Android/Edge in fullscreen a drag on the card also ran the player's own
   // gesture: the picture jumped to the finger (seek), the volume/brightness
@@ -2331,7 +2394,8 @@ async function main() {
     const kd = (key) => env.window.document.dispatchEvent(new env.window.KeyboardEvent("keydown", {
       bubbles: true, cancelable: true, key }));
     env.v.currentTime = 100; kd("["); await sleep(20);
-    env.v.currentTime = 130; kd("]"); await sleep(80);
+    env.v.currentTime = 130; kd("]"); await sleep(10);
+    kd("p"); await sleep(80); // the loop toggle, not the B mark, starts it
     check("[ab] the loop is running before the switch is turned off",
       p.shadowRoot.getElementById("loop").getAttribute("data-state") === "on",
       p.shadowRoot.getElementById("loop").getAttribute("data-state"));
@@ -2393,7 +2457,7 @@ async function main() {
     touch(env, "touchend", 120, 520);
     await sleep(60);
     check("[ab] a stale card press does not swallow the page's touch stream",
-      /brightness\(0?\.\d+\)|brightness\(1\)/.test(env.v.style.filter), env.v.style.filter || "(none)");
+      veilOp(env) > 0.1, "veil=" + veilOp(env));
   }
 
   // --- the untrusted pointer stream must not end a touch hold (1.0.35) ----

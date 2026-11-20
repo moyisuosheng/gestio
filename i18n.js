@@ -369,13 +369,13 @@
     "Left back / center play-pause / right forward. Repeated taps accumulate when enabled.": "左侧快退 / 中间播放暂停 / 右侧快进。启用后连击可累加。",
     "Alt + scroll": "Alt + 滚轮",
     "Seek step by step without leaving the cursor over the video.": "无需将光标停留在视频上即可逐步跳转。",
-    "Use the on-screen panel (drag it anywhere), or <kbd>[</kbd> set A, <kbd>]</kbd> set B, <kbd>\\</kbd> clear, <kbd>P</kbd> pause, <kbd>Alt+L</kbd> toggle.":
-      "用屏幕面板（可拖动到任意位置），或按 <kbd>[</kbd> 设 A、<kbd>]</kbd> 设 B、<kbd>\\</kbd> 清除、<kbd>P</kbd> 暂停、<kbd>Alt+L</kbd> 切换。",
+    "Use the on-screen panel (drag it anywhere), or <kbd>[</kbd> set A, <kbd>]</kbd> set B, <kbd>\\</kbd> clear, <kbd>P</kbd> loop on/off, <kbd>Alt+L</kbd> toggle.":
+      "用屏幕面板（可拖动到任意位置），或按 <kbd>[</kbd> 设 A、<kbd>]</kbd> 设 B、<kbd>\\</kbd> 清除、<kbd>P</kbd> 循环开关、<kbd>Alt+L</kbd> 切换。",
     "Use the on-screen panel or ": "使用屏幕面板，或用 ",
     " set A, ": " 设置 A，",
     " set B, ": " 设置 B，",
     " clear, ": " 清除，",
-    " pause, ": " 暂停，",
+    " loop on/off, ": " 循环开关，",
     " toggle.": " 切换。",
     "Full-screen touch guard with play / skip quick controls while locked.": "全屏触控保护，锁定时仍可用播放 / 跳转快捷控制。",
     "Lock button": "锁定按钮",

@@ -2,6 +2,24 @@
 
 All notable changes to Gestio. The extension version in `manifest.json` follows this file.
 
+## 1.0.36 — 2026-11-21
+
+- **Brightness actually dims the picture now.** The swipe worked (meter, value,
+  anchor — all fine), but the dimming was a CSS `filter` on the `<video>`, and
+  on Android native fullscreen the frames go straight to a hardware surface the
+  CSS pipeline never touches: the meter moved while the picture stayed exactly
+  as bright. Dimming is now drawn by a black veil inside the HUD, which does
+  render above that surface (the HUD itself does — it is how the meter got on
+  screen at all). The filter is kept for the >100% side, where a black overlay
+  has nothing to offer, and the two never stack.
+- **A and B are marks, not a start button.** Setting A, then B, flipped the
+  loop on by itself, so the video started jumping back to A while the user was
+  still placing the window. Marks now only place the window: the loop button
+  (or `P`) starts it, and the hint says so. A loop that is already running
+  keeps running through a re-mark — moving B is an edit, not a stop request.
+- The guide's shortcut line said `P` *pause*; it has been the loop on/off
+  since 1.0.33.
+
 ## 1.0.35 — 2026-11-21
 
 - **A touched card can no longer kill the touch layer.** A press on the A-B
