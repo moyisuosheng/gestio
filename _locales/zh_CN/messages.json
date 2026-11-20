@@ -81,7 +81,7 @@
     "message": "区间太短（最小 0.5 秒）"
   },
   "abLoopMaxReached": {
-    "message": "已达最大循环次数"
+    "message": "已达设定次数 · 循环停止"
   },
   "abGuideSetA": {
     "message": "标记循环起点"

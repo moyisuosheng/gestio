@@ -50,6 +50,8 @@
   "hapticFeedbackEnabled": true,
   "gestureShield": true,
   "abLoopEnabled": false,
+  "abMaxLoopsOn": false,
+  "abMaxLoopsCount": 3,
   "abShortcutsEnabled": true,
   "abPanelOpacityOn": 0.55,
   "abPanelOpacityOff": 0.95,

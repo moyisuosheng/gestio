@@ -98,6 +98,12 @@ const SCHEMA = [
 
   // ---- A-B loop ----
   ["abLoopEnabled", "A-B loop", "bool", "g-ab", "Repeat a chosen segment; adds an on-screen control panel."],
+  // Repeating forever is the default and stays the default: a loop that quietly
+  // gives up after a few passes would confuse anyone who never asked for a
+  // limit. The two controls read as one pair — the count is disabled, not
+  // hidden, while the switch is off, so flipping it does not move the page.
+  ["abMaxLoopsOn", "Stop after a set number of loops", "bool", "g-ab", "Off: the segment repeats until you stop it. On: the loop stops itself after the number of passes set below, and A/B stay where they are."],
+  ["abMaxLoopsCount", "Loop count", "num", "g-ab", "Passes before the loop stops itself. Pressing the loop button again starts a fresh count.", [1, 99, 1]],
   ["abShortcutsEnabled", "A-B keyboard shortcuts", "bool", "g-ab", "Enable the keyboard shortcuts (editable in Advanced)."],
   ["abPanelOpacityOn", "Panel opacity while looping", "range", "g-ab", "The bar fades while the loop runs, so it stays out of the picture.", [0.2, 1, 0.05]],
   ["abPanelOpacityOff", "Panel opacity when idle", "range", "g-ab", "When the loop is paused or off the bar is drawn more clearly, because then it is a control.", [0.2, 1, 0.05]],
@@ -142,7 +148,7 @@ const UNITS = {
   brightnessMin: "%", brightnessMax: "%",
   sideBarWidth: "px", sideBarHeightRatio: "%", sideBarMargin: "px", sideBarHideDelay: "ms",
   lockBtnSize: "px",
-  abPanelOpacityOn: "%", abPanelOpacityOff: "%",
+  abPanelOpacityOn: "%", abPanelOpacityOff: "%", abMaxLoopsCount: "×",
   minVideoSize: "px", minVideoArea: "px²", moveThreshold: "px",
   directionThreshold: "px", clickBlockTimeout: "ms"
 };
@@ -384,6 +390,7 @@ function fill(s) {
   });
   updateGridPreview();
   updateZoneHint();
+  updateAbLoopLimit();
 }
 
 /* ---------- language ---------- */
@@ -542,6 +549,19 @@ function updateZoneHint() {
   hint.classList.toggle("warn", !custom);
 }
 
+/* ---------- A-B loop limit: the count follows its switch ---------- */
+// Disabled rather than hidden: a row that disappears and reappears makes the
+// rest of the card jump while you are reading it.
+function updateAbLoopLimit() {
+  const sw = document.querySelector('input[data-k="abMaxLoopsOn"]');
+  const on = !!(sw && sw.checked);
+  document.querySelectorAll('input[data-k="abMaxLoopsCount"]').forEach((el) => {
+    el.disabled = !on;
+    const row = el.closest ? el.closest(".row") : null;
+    if (row) row.classList.toggle("is-dim", !on);
+  });
+}
+
 /* ---------- collect & save ---------- */
 function collectAll() {
   const out = {};
@@ -633,6 +653,7 @@ function wire() {
       updateGridPreview();
       updateZoneHint();
     }
+    if (el.dataset.k === "abMaxLoopsOn") updateAbLoopLimit();
     if (el.dataset.k === "language") {
       // Keep `settings` in step with the DOM right away: the guide link and the
       // write-through below read from it, and the debounced save is 250ms away.

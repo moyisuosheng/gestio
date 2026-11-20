@@ -35,7 +35,7 @@
     abLoopDisabled: "A-B Loop disabled",
     abLoopCleared: "Loop cleared",
     abLoopTooShort: "Too short (min 0.5s)",
-    abLoopMaxReached: "Max loops reached",
+    abLoopMaxReached: "Loop stopped · count reached",
     abGuideSetA: "Mark loop start",
     abGuideSetB: "Mark loop end",
     abStart: "Start A-B loop",
@@ -74,7 +74,7 @@
     abLoopDisabled: "A-B 循环已关闭",
     abLoopCleared: "循环已清除",
     abLoopTooShort: "区间太短（最小 0.5 秒）",
-    abLoopMaxReached: "已达最大循环次数",
+    abLoopMaxReached: "已达设定次数 · 循环停止",
     abGuideSetA: "标记循环起点",
     abGuideSetB: "标记循环终点",
     abStart: "开始 A-B 循环",
@@ -1467,7 +1467,7 @@
   // ---------------------------------------------------------------------------
   const AB = {
     video: null, phase: "IDLE", a: null, b: null,
-    loopCount: 0, maxLoops: 0, on: false, raf: 0, panel: null,
+    loopCount: 0, on: false, raf: 0, panel: null,
     // Cached placement state: the stored inset (pos), the last measured card
     // size, the scale the card was last drawn at, where it was put last (for
     // drag offsets) and a short busy window so an in-flight seek cannot
@@ -1533,7 +1533,7 @@
     if (!S || !S.abLoopEnabled) return;
     const data = await loadConfig(abKey());
     if (data && typeof data === "object" && Number.isFinite(data.a) && Number.isFinite(data.b)) {
-      AB.a = data.a; AB.b = data.b; AB.maxLoops = data.maxLoops || 0;
+      AB.a = data.a; AB.b = data.b;
       AB.phase = "IDLE"; AB.on = false;
       updateABPanel();
     }
@@ -1542,7 +1542,7 @@
   const persistAB = () => {
     clearTimeout(abSaveTimer);
     abSaveTimer = setTimeout(() => {
-      saveConfig(abKey(), { a: AB.a, b: AB.b, maxLoops: AB.maxLoops, url: location.href, title: document.title });
+      saveConfig(abKey(), { a: AB.a, b: AB.b, url: location.href, title: document.title });
     }, 300);
   };
   // The lap seek has to be exact and single-shot. It used to go through
@@ -1569,6 +1569,16 @@
     } catch (_) {}
     try { v.currentTime = t; } catch (_) {}
   };
+  // How many passes before the loop stops itself. 0 = never, and that is the
+  // default: not asking for a limit must never produce one. It is read from the
+  // settings on every lap instead of being cached in the page, so editing the
+  // count (or switching the limit off) applies to the next lap, not the next
+  // page load.
+  const abLoopLimit = () => {
+    if (!S || !S.abMaxLoopsOn) return 0;
+    const n = Math.round(Number(S.abMaxLoopsCount));
+    return Number.isFinite(n) && n > 0 ? Math.min(n, 99) : 0;
+  };
   const abWatch = () => {
     cancelAnimationFrame(AB.raf);
     const tick = () => {
@@ -1587,8 +1597,12 @@
       if (now < AB.busyUntil) return;
       if (v.currentTime >= AB.b - 0.05 || v.currentTime < AB.a - 0.5) {
         AB.loopCount++;
-        if (AB.maxLoops > 0 && AB.loopCount >= AB.maxLoops) {
-          // The button has two states, so a finished loop is simply off.
+        const limit = abLoopLimit();
+        if (limit && AB.loopCount >= limit) {
+          // The button has two states, so a finished loop is simply off. A and B
+          // stay put: pressing it again repeats the same segment, from a fresh
+          // count (abToggle resets loopCount).
+          try { unpinRate(v); } catch (_) {}
           v.pause(); AB.on = false;
           cancelAnimationFrame(AB.raf);
           showHint(t("abLoopMaxReached"));

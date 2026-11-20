@@ -107,6 +107,9 @@
   /* zone selects are read-only unless "Custom" is the preferred hand */
   #g-zones.is-preset select{opacity:.55;cursor:not-allowed}
   #g-zones.is-preset .row{opacity:.85}
+  /* a control that only means something while its switch above is on */
+  .row.is-dim .info{opacity:.55}
+  .row.is-dim input{cursor:not-allowed}
   textarea{width:100%;min-height:72px;box-sizing:border-box;margin-top:8px;padding:9px 11px;border:1px solid #d7dbe8;border-radius:8px;font:12px/1.5 ui-monospace,Consolas,monospace;resize:vertical}
   .jsonrow{display:block;padding:12px 0;border-bottom:1px solid var(--line)}
   .jsonrow:last-child{border-bottom:0}

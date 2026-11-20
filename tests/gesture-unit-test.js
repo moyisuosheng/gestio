@@ -2183,6 +2183,72 @@ async function main() {
       sr.getElementById("ta").textContent);
   }
 
+  // --- "stop after N loops" (1.0.34) --------------------------------------
+  // Off by default. An A-B loop is a repeat, so one that gave up after a few
+  // passes without being asked for a limit would be a bug, not a feature.
+  {
+    const env = makeEnv({ abLoopEnabled: true, abMaxLoopsOn: true, abMaxLoopsCount: 2 },
+      { config: { a: 100, b: 130 } });
+    env.window.eval(src);
+    await sleep(240);
+    const panel = () => env.window.document.querySelector('[data-gestio="abpanel"]');
+    tap(env, panel().shadowRoot.getElementById("loop"));
+    await sleep(80);
+    // A lap is the playhead being parked past B — jsdom never advances time, so
+    // the test plays the video itself. Counting seeks to A is the honest check:
+    // the seek is what "it repeated" means.
+    const laps = () => env.seeks.filter((x) => Math.abs(x - 100) < 0.3).length;
+    const lap = async () => {
+      const before = laps();
+      env.v.currentTime = 130.4;
+      const t0 = Date.now();
+      while (Date.now() - t0 < 1200) {
+        if (laps() > before) return true;
+        await sleep(40);
+      }
+      return false;
+    };
+    check("[ab] pass 1 repeats the segment", await lap(), JSON.stringify(env.seeks.slice(-2)));
+    // Pass 2 is the limit, so it must stop instead of seeking back to A.
+    env.v.currentTime = 130.4;
+    await sleep(420);
+    const sr = panel().shadowRoot;
+    check("[ab] the last allowed pass stops the loop",
+      sr.getElementById("loop").getAttribute("data-state") === "off",
+      sr.getElementById("loop").getAttribute("data-state"));
+    check("[ab] ...pauses the video", env.v.paused === true, String(env.v.paused));
+    check("[ab] ...and does not seek again", laps() === 1, JSON.stringify(env.seeks));
+    check("[ab] the marks survive the stop", /A 0:01:40/.test(sr.getElementById("ta").textContent),
+      sr.getElementById("ta").textContent);
+  }
+  {
+    // The switch is what turns the limit on: with it off the same count means
+    // nothing and the segment keeps repeating, which is the 1.0.33 behaviour.
+    const env = makeEnv({ abLoopEnabled: true, abMaxLoopsCount: 1 },
+      { config: { a: 100, b: 130 } });
+    env.window.eval(src);
+    await sleep(240);
+    tap(env, env.window.document.querySelector('[data-gestio="abpanel"]').shadowRoot.getElementById("loop"));
+    await sleep(80);
+    const laps = () => env.seeks.filter((x) => Math.abs(x - 100) < 0.3).length;
+    const lap = async () => {
+      const before = laps();
+      env.v.currentTime = 130.4;
+      const t0 = Date.now();
+      while (Date.now() - t0 < 1200) {
+        if (laps() > before) return true;
+        await sleep(40);
+      }
+      return false;
+    };
+    check("[ab] limit off: pass 1 repeats", await lap(), JSON.stringify(env.seeks.slice(-2)));
+    check("[ab] limit off: pass 2 repeats too", await lap(), JSON.stringify(env.seeks.slice(-2)));
+    const sr = env.window.document.querySelector('[data-gestio="abpanel"]').shadowRoot;
+    check("[ab] limit off: the loop is still running",
+      sr.getElementById("loop").getAttribute("data-state") === "on",
+      sr.getElementById("loop").getAttribute("data-state"));
+  }
+
   // --- a card drag must not drive the player behind it (1.0.32) -----------
   // On Android/Edge in fullscreen a drag on the card also ran the player's own
   // gesture: the picture jumped to the finger (seek), the volume/brightness

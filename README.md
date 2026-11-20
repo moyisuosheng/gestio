@@ -24,7 +24,7 @@ with first-class support for **Edge and Chrome on Android**.
 | **Double tap** | Left = back 10 s, centre = play/pause, right = forward 10 s. Repeated taps accumulate (20 s, 30 s, …) when enabled. |
 | **Two-finger tap** | Locks brightness (left half) or volume (right half) independently, so a stray swipe cannot move it. |
 | **One-handed mode** | Right / left / custom zone mapping, 3×1 or 3×2 grid, adjustable gesture-area height. |
-| **A-B loop** | On-screen panel plus keyboard shortcuts (`[` `]` `\` `P` `Alt+L`, all editable). |
+| **A-B loop** | On-screen panel plus keyboard shortcuts (`[` `]` `\` `P` `Alt+L`, all editable). Repeats until stopped, or stops itself after a set number of passes. |
 | **Lock button** | Full-screen touch guard for kids / pocket mode, with play and skip controls still available. |
 | **Alt + scroll** | Step-by-step seeking without moving the pointer over the video. |
 | **Per-site rules** | Disable on chosen domains, or block page touch handlers on chosen domains. |

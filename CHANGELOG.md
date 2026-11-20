@@ -2,6 +2,21 @@
 
 All notable changes to Gestio. The extension version in `manifest.json` follows this file.
 
+## 1.0.34 — 2026-11-21
+
+- **A-B loop can stop itself after N passes.** Two controls in Settings >
+  A-B loop: a switch (off by default) and a count (1–99, default 3). Off, the
+  segment repeats until it is stopped by hand — that was the behaviour before
+  and it stays the default. On, the loop counts its passes, pauses the video
+  after the last one and leaves the button "off", with A and B untouched, so
+  pressing it again runs the same segment from a fresh count. The count is
+  disabled rather than hidden while the switch is off.
+- `maxLoops` used to be a per-page stored field that nothing could ever set: the
+  guard read `maxLoops > 0` and nothing wrote anything but 0, so the "max loops
+  reached" branch and its message were unreachable. The limit comes from the
+  settings now, read on every lap, so editing it mid-loop applies to the next
+  lap.
+
 ## 1.0.33 — 2026-11-21
 
 - **The Hide flag lives in sessionStorage.** It is transient view state ("not

@@ -211,6 +211,12 @@
     /* ---- A-B / lock ---- */
     "A-B loop": "A-B 循环",
     "Repeat a chosen segment; adds an on-screen control panel.": "重复选定片段；附带屏幕控制面板。",
+    "Stop after a set number of loops": "循环 N 次后自动停止",
+    "Off: the segment repeats until you stop it. On: the loop stops itself after the number of passes set below, and A/B stay where they are.":
+      "关闭（默认）：一直重复该片段，直到你手动停止。开启：播完下面设定的次数后自动停下，A、B 标记保留。",
+    "Loop count": "循环次数",
+    "Passes before the loop stops itself. Pressing the loop button again starts a fresh count.":
+      "自动停止前重复的遍数。再次按下循环按钮会从头计数。",
     "A-B keyboard shortcuts": "A-B 键盘快捷键",
     "Enable the keyboard shortcuts (editable in Advanced).": "启用键盘快捷键（可在“高级”中编辑）。",
     "Panel opacity while looping": "循环播放时面板不透明度",

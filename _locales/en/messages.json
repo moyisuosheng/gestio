@@ -81,7 +81,7 @@
     "message": "Too short (min 0.5s)"
   },
   "abLoopMaxReached": {
-    "message": "Max loops reached"
+    "message": "Loop stopped · count reached"
   },
   "abGuideSetA": {
     "message": "Mark loop start"

@@ -168,6 +168,30 @@ async function main() {
       s4 && String(s4.gesturePlayWhenPaused));
   }
 
+  // 9d. "stop after N loops" is a switch plus a count: off by default, and the
+  //     count only means something while the switch is on (it is disabled, not
+  //     hidden, so flipping the switch does not move the rest of the card).
+  {
+    const limSw = doc.querySelector('input[type=checkbox][data-k="abMaxLoopsOn"]');
+    const cnt = doc.querySelector('input[type=number][data-k="abMaxLoopsCount"]');
+    check('loop limit switch exists', !!limSw);
+    check('loop limit defaults to off', limSw && limSw.checked === false, limSw && String(limSw.checked));
+    check('loop count renders the default', cnt && cnt.value === String(DEFAULTS.abMaxLoopsCount), cnt && cnt.value);
+    check('loop count is disabled while the switch is off', cnt && cnt.disabled === true, cnt && String(cnt.disabled));
+    if (limSw && cnt) {
+      clickSwitchByKey(env.window, 'abMaxLoopsOn');
+      limSw.dispatchEvent(new env.window.Event('input', { bubbles: true }));
+      await sleep(60);
+      check('turning the limit on enables the count', cnt.disabled === false, String(cnt.disabled));
+      cnt.value = '5';
+      cnt.dispatchEvent(new env.window.Event('change', { bubbles: true }));
+      await sleep(350);
+      const s5 = env.getSaved();
+      check('the limit pair is saved', s5 && s5.abMaxLoopsOn === true && s5.abMaxLoopsCount === 5,
+        s5 && (s5.abMaxLoopsOn + ' / ' + s5.abMaxLoopsCount));
+    }
+  }
+
   // 10. no visible "PRO" string anywhere in the options page
   check('options page has no PRO label', !doc.body.textContent.includes('PRO'), 'PRO found: ' + doc.body.textContent.includes('PRO'));
   {
