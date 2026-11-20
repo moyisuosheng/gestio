@@ -39,6 +39,9 @@
     "Stronger blocking for stubborn players (global; per-site in Advanced).": "针对顽固播放器的更强拦截（全局；按站点可在“高级”中设置）。",
     "Haptic feedback": "触觉反馈",
     "Subtle vibration when a gesture triggers (mobile).": "手势触发时的轻微振动（移动端）。",
+    "Hint toast opacity": "消息提示透明度",
+    "How solid the small message pills are — speed changes, lock states, A-B marks. Lower it so they stand out less.":
+      "小消息条（调速、锁定状态、A-B 标记等）的实色程度。调低后提示更不显眼。",
     "First-run guide": "首次运行引导",
     "Show the one-handed setup guide on first run.": "首次运行时显示单手设置引导。",
     "Interface language": "界面语言",

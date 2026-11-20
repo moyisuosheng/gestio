@@ -185,6 +185,7 @@
     volumeBoostEnabled: false, volumeBoostMax: 300, brightnessMin: 5, brightnessMax: 100,
     thumbnailPreviewEnabled: true, hapticFeedbackEnabled: true, gestureShield: true,
     abLoopEnabled: false, abShortcutsEnabled: true, abMaxLoopsOn: false, abMaxLoopsCount: 3, minVideoSize: 100,
+    hintOpacity: 1,
     minVideoArea: 40000, moveThreshold: 10, directionThreshold: 15,
     velocityThreshold: 0.3, velocitySmoothing: 0.3, speedStep: 0.25,
     clickBlockTimeout: 200, sideBarWidth: 4, sideBarHeightRatio: 0.6,
@@ -851,6 +852,9 @@
       .hint{position:absolute;left:50%;bottom:12%;transform:translateX(-50%);
         background:rgba(0,0,0,.78);color:#fff;padding:8px 16px;border-radius:22px;
         font-size:15px;letter-spacing:.3px;white-space:nowrap;transition:opacity .18s;opacity:0}
+      /* configured solidity beats the generic .show{opacity:1}: a settings
+         value of .5 must still fade out to 0 through the same transition. */
+      .hint.show{opacity:var(--hint-o,1)}
       .center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
         background:rgba(0,0,0,.7);color:#fff;padding:14px 24px;border-radius:14px;
         font-size:34px;font-weight:600;text-align:center;min-width:120px;transition:opacity .18s;opacity:0}
@@ -968,7 +972,12 @@
   let hintTimer, centerTimer;
   const showHint = (msg, ms = 900) => {
     ensureHud();
-    hintEl.textContent = msg; hintEl.classList.add("show");
+    hintEl.textContent = msg;
+    // Solidity comes from settings (hintOpacity, stored 0.3–1); a missing or
+    // junk value falls back to fully solid.
+    hintEl.style.setProperty("--hint-o",
+      String(clamp(Number(S && S.hintOpacity) || 1, 0.15, 1)));
+    hintEl.classList.add("show");
     clearTimeout(hintTimer);
     hintTimer = setTimeout(() => hintEl.classList.remove("show"), ms);
   };

@@ -48,6 +48,7 @@
   "brightnessMax": 100,
   "thumbnailPreviewEnabled": true,
   "hapticFeedbackEnabled": true,
+  "hintOpacity": 1,
   "gestureShield": true,
   "abLoopEnabled": false,
   "abMaxLoopsOn": false,

@@ -61,6 +61,7 @@ export const DEFAULT_SETTINGS = {
   // preview / feedback
   thumbnailPreviewEnabled: true,     // on-screen time preview while seeking
   hapticFeedbackEnabled: true,
+  hintOpacity: 1,                    // solid the small message pills are (0.3–1)
   gestureShield: true,               // block page touch events to avoid player conflicts
   // brightness/volume-only lock (toggled by a two-finger tap on the video)
   lockVerticalSwipe: false,          // true = vertical swipes ignored

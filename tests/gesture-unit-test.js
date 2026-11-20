@@ -1852,7 +1852,7 @@ async function main() {
       const h = hud && hud.shadowRoot && hud.shadowRoot.querySelector(".hint");
       return (h && h.textContent || "").trim();
     };
-    const env = await mk({ gestureLockEnabled: true, language: "zh_CN" });
+    const env = await mk({ gestureLockEnabled: true, language: "zh_CN", hintOpacity: 0.5 });
     const pinHost = env.window.document.querySelector('[data-gestio="lockpin"]');
     const pinBtn = pinHost && pinHost.shadowRoot.querySelector("button");
     check('[lockbtn] the pinned button draws an SVG padlock',
@@ -1874,6 +1874,10 @@ async function main() {
       relBtn && relBtn.getAttribute("aria-label"));
     check('[lockbtn] locking hints in the UI language, not hardcoded English',
       hintText(env).indexOf("已锁定播放") === 0, hintText(env));
+    const hintNode = env.window.document.querySelector('[data-gestio="hud"]').shadowRoot.querySelector(".hint");
+    check('[lockbtn] the hint honours the configured opacity (hintOpacity .5)',
+      hintNode.style.getPropertyValue("--hint-o") === "0.5",
+      hintNode.style.getPropertyValue("--hint-o"));
 
     relBtn.dispatchEvent(new env.window.MouseEvent("click", { bubbles: true, cancelable: true }));
     await sleep(60);

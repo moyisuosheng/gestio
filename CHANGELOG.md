@@ -2,6 +2,21 @@
 
 All notable changes to Gestio. The extension version in `manifest.json` follows this file.
 
+## 1.0.39 — 2026-11-21
+
+- **The number fields stop drawing their caret below the digits.** The value
+  chips had no explicit height, and on Android the number input's internal
+  spin structure — sitting in the same 20px box as a right-aligned value —
+  pushed the text cursor underneath the number it belonged to. The chips now
+  pin `height: 20px; line-height: 20px`, and on touch devices
+  (`pointer: coarse`) the spinner pseudo-elements are removed entirely, which
+  is also where its tap target went; desktop keeps the hover spinners.
+- **New setting: hint toast opacity** (Settings → Gestures → Feedback &
+  compatibility, 30–100%, default 100%). The small message pills — speed
+  changes, lock states, A-B marks, loop stops — previously came on at full
+  opacity only. The value rides into the HUD as a CSS variable, so the fade
+  in/out transition still works; missing or junk values fall back to solid.
+
 ## 1.0.38 — 2026-11-21
 
 - **The lock button is a drawn padlock now, and it speaks your language.** The

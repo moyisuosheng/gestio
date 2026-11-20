@@ -199,6 +199,15 @@ async function main() {
     check('no PRO badge/label in source', !/badge\.textContent\s*=\s*"PRO"/.test(allHtml) && !/\(PRO\)/.test(allHtml));
   }
 
+  // 10b. hint toast opacity: a 0..1 setting displayed as a percentage slider
+  {
+    const ho = doc.querySelector('input[type=range][data-k="hintOpacity"]');
+    check('hint opacity slider exists in the feedback card', !!ho);
+    check('hint opacity renders the default as 100%',
+      ho && ho.value === String(Math.round(DEFAULTS.hintOpacity * 100)),
+      ho && ho.value);
+  }
+
   // 11. the background worker's DEFAULT_SETTINGS must cover every key in
   //     settings.json. readSettings() merges these defaults over a device's
   //     stored blob, so a key that exists only in settings.json can never be

@@ -29,6 +29,7 @@ const SCHEMA = [
 
   // ---- feedback & compatibility ----
   ["hapticFeedbackEnabled", "Haptic feedback", "bool", "g-compat", "Subtle vibration when a gesture triggers (mobile)."],
+  ["hintOpacity", "Hint toast opacity", "range", "g-compat", "How solid the small message pills are — speed changes, lock states, A-B marks. Lower it so they stand out less.", [0.3, 1, 0.05]],
   ["gestureShield", "Gesture shield", "bool", "g-compat", "Block the page's own touch events on the player to avoid conflicts."],
   ["nativeEventBlocking", "Native event blocking", "bool", "g-compat", "Stronger blocking for stubborn players (global; per-site in Advanced)."],
 
@@ -149,11 +150,12 @@ const UNITS = {
   sideBarWidth: "px", sideBarHeightRatio: "%", sideBarMargin: "px", sideBarHideDelay: "ms",
   lockBtnSize: "px",
   abPanelOpacityOn: "%", abPanelOpacityOff: "%", abMaxLoopsCount: "×",
+  hintOpacity: "%",
   minVideoSize: "px", minVideoArea: "px²", moveThreshold: "px",
   directionThreshold: "px", clickBlockTimeout: "ms"
 };
 const PCT = new Set(["maxSeekRatio", "gestureAreaRatio", "sideBarHeightRatio",
-  "abPanelOpacityOn", "abPanelOpacityOff"]);
+  "abPanelOpacityOn", "abPanelOpacityOff", "hintOpacity"]);
 const isPct = (k) => PCT.has(k);
 // 0..1 -> 0..100 for display; rounded so the field never shows 45.000000001
 const toPct = (x) => Math.round(x * 100 * 1000) / 1000;
