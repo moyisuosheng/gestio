@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Gestio — gesture control for web video</title>
+<meta name="description" content="Gestio adds touch, mouse and keyboard gestures to any HTML5 video on the web: speed, seek, brightness and volume without hunting for tiny buttons.">
+<style>
+  :root{
+    color-scheme:light dark;
+    --bg:#f7f8fc; --card:#fff; --ink:#1b1f2a; --muted:#5b6478;
+    --line:rgba(20,24,40,.1); --brand:#6366f1;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{--bg:#0f1220;--card:#161a2b;--ink:#e8ebf5;--muted:#a2acc4;--line:rgba(255,255,255,.1)}
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:16px/1.65 Inter,"Segoe UI",system-ui,-apple-system,sans-serif}
+  .wrap{max-width:760px;margin:0 auto;padding:48px 24px 72px}
+  header{display:flex;align-items:center;gap:14px;margin-bottom:8px}
+  h1{font-size:26px;margin:0;letter-spacing:-.01em}
+  .sub{color:var(--muted);font-size:14px;margin:2px 0 0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;
+        padding:24px;margin-top:26px}
+  p,li{font-size:15px}
+  ul{padding-left:22px}
+  ul li{margin:6px 0}
+  code{background:rgba(99,102,241,.1);border-radius:5px;padding:1px 6px;font-size:13px}
+  .shot{display:block;width:100%;height:auto;border-radius:12px;border:1px solid var(--line);
+        margin:20px 0 0}
+  .links{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:10px;
+       border:1px solid var(--line);color:var(--ink);text-decoration:none;font-size:14px;
+       background:var(--card)}
+  .btn.primary{background:var(--brand);border-color:transparent;color:#fff}
+  .lang{font-size:13px;color:var(--muted);margin-top:40px;text-transform:uppercase;
+        letter-spacing:.08em}
+  footer{margin-top:36px;color:var(--muted);font-size:13px;border-top:1px solid var(--line);
+         padding-top:16px}
+  a{color:var(--brand)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <svg width="44" height="44" viewBox="0 0 128 128" aria-hidden="true">
+      <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#6366f1"/><stop offset="1" stop-color="#8b5cf6"/>
+      </linearGradient></defs>
+      <rect width="128" height="128" rx="30" fill="url(#g)"/>
+      <path d="M44 34 L44 94 L86 64 Z" fill="#fff" stroke="#fff" stroke-width="7"
+            stroke-linejoin="round" stroke-linecap="round"/>
+      <path d="M95 47 L109 64 L95 81" fill="none" stroke="#fff" stroke-width="8"
+            stroke-linecap="round" stroke-linejoin="round" opacity=".72"/>
+    </svg>
+    <div>
+      <h1>Gestio</h1>
+      <p class="sub">Gesture control for web video</p>
+    </div>
+  </header>
+
+  <div class="card">
+    <p>Gestio puts the playback controls back under your thumb. Any page that plays an HTML5 video
+    gets a full gesture layer — swipe, hold and tap on the picture instead of aiming for a tiny
+    button at the bottom of a mobile player.</p>
+    <ul>
+      <li><strong>Long press</strong> — boost speed, drag to tune it, swipe up to lock.</li>
+      <li><strong>Horizontal swipe</strong> — seek, with a preview of where you will land.</li>
+      <li><strong>Vertical swipe</strong> — brightness on the left half, volume on the right.</li>
+      <li><strong>Double tap</strong> — back 10 s / play-pause / forward 10 s, and repeats accumulate.</li>
+      <li><strong>Alt + scroll</strong>, <strong>A-B loop</strong> and a full-screen touch lock.</li>
+    </ul>
+    <p>Works with touch, pen and mouse. No account, no tracking, no network requests — settings live
+    in <code>chrome.storage.local</code> on your own machine.</p>
+
+    <img class="shot" src="screenshots/speed-tiers.png" width="1280" height="800"
+         alt="The speed tier row that appears when you long-press a video">
+
+    <div class="links">
+      <a class="btn primary" href="https://github.com/moyisuosheng/gestio">Source on GitHub</a>
+      <a class="btn" href="privacy-policy.html">Privacy policy</a>
+      <a class="btn" href="https://github.com/moyisuosheng/gestio/issues">Report an issue</a>
+    </div>
+  </div>
+
+  <p class="lang">中文</p>
+  <p>Gestio 是一个给网页视频加触摸 / 鼠标 / 键盘手势的浏览器扩展：长按视频上下滑动改倍速、
+  横滑快进快退并显示落点、左右滑动分别调节亮度和音量、双击前进后退 10 秒。
+  不收集任何数据，不发起网络请求，设置只保存在本机。</p>
+
+  <footer>Gestio · MIT licensed · <a href="https://github.com/moyisuosheng/gestio">source code</a></footer>
+</div>
+</body>
+</html>

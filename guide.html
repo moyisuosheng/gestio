@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title data-i18n="Gestio — gesture guide">Gestio — gesture guide</title>
+<style>
+  :root{color-scheme:light;--primary:#6366f1;--soft:#eef0ff;--muted:rgba(0,0,0,.6);--line:rgba(0,0,0,.08)}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Inter,"Segoe UI",system-ui,sans-serif;color:rgba(0,0,0,.87);background:#f8fafc;font-size:14px;line-height:1.6}
+  header{padding:20px 24px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;display:flex;align-items:center;gap:13px}
+  header .brandic{display:flex;align-items:center;justify-content:center;width:40px;height:40px;flex:none;border-radius:12px;background:rgba(255,255,255,.2)}
+  header h1{margin:0;font-size:19px;font-weight:700}
+  header p{margin:3px 0 0;opacity:.9;font-size:12px}
+  .sic{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+  .wrap{padding:18px 24px 40px}
+  h2{font-size:15px;margin:22px 0 10px;color:var(--primary)}
+  .g{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:420px;margin-bottom:10px}
+  .cell{background:var(--soft);border:1px solid #dfe2ff;border-radius:10px;min-height:74px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;text-align:center;padding:8px 6px 6px}
+  .cell .zi{color:var(--primary);display:flex}
+  .cell .zi svg{width:18px;height:18px}
+  .cell .t{font-size:12px;font-weight:700;color:var(--primary)}
+  .cell .s{font-size:10.5px;color:var(--muted)}
+  .cell .z{font-size:9px;color:#9aa0b0;position:absolute;display:none}
+  .g.g3x2{grid-template-rows:1fr 1fr}
+  .row{display:flex;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);max-width:540px}
+  .row:last-child{border-bottom:0}
+  .row .ic{width:26px;display:flex;justify-content:center;color:var(--primary);flex:none;padding-top:2px}
+  .row .t{font-weight:600}
+  .row .d{font-size:12px;color:var(--muted);line-height:1.55}
+  .note{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 14px;font-size:12px;color:var(--muted);max-width:540px;margin-top:14px}
+  kbd{background:#eef0f4;border:1px solid #d7dbe8;border-bottom-width:2px;border-radius:5px;padding:1px 6px;font:11px ui-monospace,monospace}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="i-hand" viewBox="0 0 24 24"><path d="M9 11V5.6a1.6 1.6 0 0 1 3.2 0V11"/><path d="M12.2 11V8.6a1.6 1.6 0 0 1 3.2 0V11"/><path d="M15.4 11.4V10a1.6 1.6 0 0 1 3.2 0v5.2A6.8 6.8 0 0 1 11.8 22h-1a5 5 0 0 1-4.3-2.5L4 15.6a1.7 1.7 0 0 1 2.7-2l2.3 2"/><path d="M9 18.5V13"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M11 5.5 4.5 12 11 18.5z"/><path d="M20 5.5 13.5 12 20 18.5z"/></symbol>
+  <symbol id="i-fwd" viewBox="0 0 24 24"><path d="M13 5.5 19.5 12 13 18.5z"/><path d="M4 5.5 10.5 12 4 18.5z"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 4.8 19 12 8 19.2z"/></symbol>
+  <symbol id="i-swipe-h" viewBox="0 0 24 24"><path d="M4 12h16"/><path d="M8 8l-4 4 4 4"/><path d="M16 8l4 4-4 4"/></symbol>
+  <symbol id="i-swipe-v" viewBox="0 0 24 24"><path d="M12 4v16"/><path d="M8 8l4-4 4 4"/><path d="M8 16l4 4 4-4"/></symbol>
+  <symbol id="i-two" viewBox="0 0 24 24"><circle cx="9" cy="6.5" r="2"/><circle cx="15" cy="6.5" r="2"/><path d="M9 8.5V15M15 8.5V15"/><path d="M4 19.5h16"/></symbol>
+  <symbol id="i-double" viewBox="0 0 24 24"><circle cx="12" cy="12" r="2.4"/><path d="M6.6 6.6a7.6 7.6 0 0 0 0 10.8"/><path d="M17.4 6.6a7.6 7.6 0 0 1 0 10.8"/></symbol>
+  <symbol id="i-mouse" viewBox="0 0 24 24"><rect x="7" y="2.5" width="10" height="19" rx="5"/><path d="M12 7v3.4"/></symbol>
+  <symbol id="i-loop" viewBox="0 0 24 24"><path d="M4 9.5A4.5 4.5 0 0 1 8.5 5H18"/><path d="M15.5 2.5 18.5 5l-3 2.5"/><path d="M20 14.5A4.5 4.5 0 0 1 15.5 19H6"/><path d="M8.5 21.5 5.5 19l3-2.5"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10.5" rx="2.4"/><path d="M8 10V7.2a4 4 0 0 1 8 0V10"/></symbol>
+</defs></svg>
+<header>
+  <div class="brandic"><svg class="sic" style="width:22px;height:22px"><use href="#i-hand"/></svg></div>
+  <div><h1><span>Gestio</span> · <span data-i18n="Gesture guide">Gesture guide</span></h1>
+  <p data-i18n="Applies to any page with an HTML5 <video> element">Applies to any page with an HTML5 &lt;video&gt; element</p></div>
+</header>
+<div class="wrap">
+  <h2 data-i18n="3×1 grid (default)">3×1 grid (default)</h2>
+  <div class="g">
+    <div class="cell"><span class="zi"><svg class="sic"><use href="#i-back"/></svg></span><span class="t" data-i18n="Back">Back</span><span class="s" data-i18n="Brightness">Brightness</span></div>
+    <div class="cell"><span class="zi"><svg class="sic"><use href="#i-play"/></svg></span><span class="t" data-i18n="Play">Play</span><span class="s">&nbsp;</span></div>
+    <div class="cell"><span class="zi"><svg class="sic"><use href="#i-fwd"/></svg></span><span class="t" data-i18n="Forward">Forward</span><span class="s" data-i18n="Volume">Volume</span></div>
+  </div>
+
+  <h2 data-i18n="3×2 grid (one-handed)">3×2 grid (one-handed)</h2>
+  <div class="g g3x2">
+    <div class="cell"><span class="zi"><svg class="sic"><use href="#i-fwd"/></svg></span><span class="t" data-i18n="Forward">Forward</span><span class="s" data-i18n="Brightness">Brightness</span></div>
+    <div class="cell"><span class="zi"><svg class="sic"><use href="#i-play"/></svg></span><span class="t" data-i18n="Play">Play</span><span class="s">&nbsp;</span></div>
+    <div class="cell"><span class="zi"><svg class="sic"><use href="#i-fwd"/></svg></span><span class="t" data-i18n="Forward">Forward</span><span class="s" data-i18n="Volume">Volume</span></div>
+    <div class="cell"><span class="zi"><svg class="sic"><use href="#i-back"/></svg></span><span class="t" data-i18n="Back">Back</span><span class="s" data-i18n="Brightness">Brightness</span></div>
+    <div class="cell"><span class="zi"><svg class="sic"><use href="#i-play"/></svg></span><span class="t" data-i18n="Play">Play</span><span class="s">&nbsp;</span></div>
+    <div class="cell"><span class="zi"><svg class="sic"><use href="#i-back"/></svg></span><span class="t" data-i18n="Back">Back</span><span class="s" data-i18n="Volume">Volume</span></div>
+  </div>
+  <div class="note" data-i18n="Left-handed mode mirrors the zones automatically. Choose Custom in One-handed settings to assign each zone yourself.">Left-handed mode mirrors the zones automatically. Choose Custom in One-handed settings to assign each zone yourself.</div>
+
+  <h2 data-i18n="Gestures">Gestures</h2>
+  <div class="row"><div class="ic"><svg class="sic"><use href="#i-hand"/></svg></div><div><div class="t" data-i18n="Long press">Long press</div><div class="d" data-i18n="Hold to boost; drag left/right to adjust, swipe up to lock the speed. Hold again to keep tuning at the locked speed; swipe down to exit.">Hold to boost; drag left/right to adjust, swipe up to lock the speed. Hold again to keep tuning at the locked speed; swipe down to exit.</div></div></div>
+  <div class="row"><div class="ic"><svg class="sic"><use href="#i-swipe-h"/></svg></div><div><div class="t" data-i18n="Horizontal swipe">Horizontal swipe</div><div class="d" data-i18n="Seek by a fraction of the video. A preview card shows the landing time; swipe down to cancel.">Seek by a fraction of the video. A preview card shows the landing time; swipe down to cancel.</div></div></div>
+  <div class="row"><div class="ic"><svg class="sic"><use href="#i-swipe-v"/></svg></div><div><div class="t" data-i18n="Vertical swipe">Vertical swipe</div><div class="d" data-i18n="Left half = brightness, right half = volume (boost past 100% optional). Windowed: only in fullscreen by default, so the page keeps scrolling.">Left half = brightness, right half = volume (boost past 100% optional). Windowed: only in fullscreen by default, so the page keeps scrolling.</div></div></div>
+  <div class="row"><div class="ic"><svg class="sic"><use href="#i-two"/></svg></div><div><div class="t" data-i18n="Two-finger tap">Two-finger tap</div><div class="d" data-i18n="Two fingers on the left half toggle the brightness lock, on the right half the volume lock — each half switches on its own.">Two fingers on the left half toggle the brightness lock, on the right half the volume lock — each half switches on its own.</div></div></div>
+  <div class="row"><div class="ic"><svg class="sic"><use href="#i-double"/></svg></div><div><div class="t" data-i18n="Double tap">Double tap</div><div class="d" data-i18n="Left back / center play-pause / right forward. Repeated taps accumulate when enabled.">Left back / center play-pause / right forward. Repeated taps accumulate when enabled.</div></div></div>
+  <div class="row"><div class="ic"><svg class="sic"><use href="#i-mouse"/></svg></div><div><div class="t" data-i18n="Alt + scroll">Alt + scroll</div><div class="d" data-i18n="Seek step by step without leaving the cursor over the video.">Seek step by step without leaving the cursor over the video.</div></div></div>
+  <div class="row"><div class="ic"><svg class="sic"><use href="#i-loop"/></svg></div><div><div class="t" data-i18n="A-B loop">A-B loop</div><div class="d" data-i18n-html="Use the on-screen panel (drag it anywhere), or <kbd>[</kbd> set A, <kbd>]</kbd> set B, <kbd>\</kbd> clear, <kbd>P</kbd> pause, <kbd>Alt+L</kbd> toggle.">Use the on-screen panel (drag it anywhere), or <kbd>[</kbd> set A, <kbd>]</kbd> set B, <kbd>\</kbd> clear, <kbd>P</kbd> pause, <kbd>Alt+L</kbd> toggle.</div></div></div>
+  <div class="row"><div class="ic"><svg class="sic"><use href="#i-lock"/></svg></div><div><div class="t" data-i18n="Lock button">Lock button</div><div class="d" data-i18n="Pins a lock button to the video corner — tap it to freeze the screen. Play / skip stay available while locked.">Pins a lock button to the video corner — tap it to freeze the screen. Play / skip stay available while locked.</div></div></div>
+  <div class="note" data-i18n="Gestures only work on real web pages. Android plays a downloaded file in the browser's own player (content://), and file:// pages need file access — neither can be scripted. Play the video from an http(s) link instead.">Gestures only work on real web pages. Android plays a downloaded file in the browser's own player (content://), and file:// pages need file access — neither can be scripted. Play the video from an http(s) link instead.</div>
+</div>
+<script src="i18n.js"></script>
+<script src="guide.js"></script>
+</body>
+</html>

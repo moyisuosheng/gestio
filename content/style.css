@@ -1,0 +1,5 @@
+/* Gestio — minimal injected stylesheet.
+   HUD uses Shadow DOM so most styling is inline in JS; this file just
+   normalizes touch behavior on player containers when the extension is active. */
+[data-gestio="hud"], [data-gestio="abpanel"] { all: initial; }
+video { -webkit-tap-highlight-color: transparent; }

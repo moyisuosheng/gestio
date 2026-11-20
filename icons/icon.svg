@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <!-- Source artwork for icons/icon-{16,32,48,128}.png (rendered with Chrome). -->
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#6366f1"/>
+      <stop offset="1" stop-color="#8b5cf6"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="30" fill="url(#g)"/>
+  <rect x="0.75" y="0.75" width="126.5" height="126.5" rx="29.25" fill="none"
+        stroke="rgba(255,255,255,.22)" stroke-width="1.5"/>
+  <path d="M44 34 L44 94 L86 64 Z" fill="#fff" stroke="#fff" stroke-width="7"
+        stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M95 47 L109 64 L95 81" fill="none" stroke="#fff" stroke-width="8"
+        stroke-linecap="round" stroke-linejoin="round" opacity=".72"/>
+</svg>

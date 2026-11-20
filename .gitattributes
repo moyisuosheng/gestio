@@ -1,0 +1,10 @@
+# Keep the working tree LF everywhere so a Windows clone, macOS clone and CI
+# checkout all produce byte-identical files — the extension is zipped and
+# signed, and stray CR bytes would change the package hash.
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.ico binary
+*.crx binary
+*.zip binary

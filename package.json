@@ -1,0 +1,24 @@
+{
+  "name": "gestio",
+  "version": "1.0.33",
+  "private": true,
+  "description": "Gesture control for web video: speed, seek, brightness and volume without hunting for tiny buttons.",
+  "license": "MIT",
+  "type": "commonjs",
+  "packageManager": "pnpm@10.33.0",
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=9"
+  },
+  "scripts": {
+    "test": "node tests/run-all.mjs",
+    "test:browser": "node tests/browser/gesture-browser-test.js",
+    "pack": "node scripts/pack.mjs",
+    "pack:crx": "node scripts/pack-crx.mjs",
+    "preflight": "node scripts/preflight.mjs",
+    "shots": "node scripts/screenshots.mjs"
+  },
+  "devDependencies": {
+    "jsdom": "^26.1.0"
+  }
+}

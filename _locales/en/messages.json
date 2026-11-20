@@ -1,0 +1,113 @@
+{
+  "appName": {
+    "message": "Gestio – Video Gesture Control"
+  },
+  "appShortName": {
+    "message": "Gestio"
+  },
+  "appDescription": {
+    "message": "Control web videos with gestures: swipe to seek, hold to speed up, slide for volume and brightness, double-tap zones and A-B loop."
+  },
+  "gestureSpeedLocked": {
+    "message": "Locked $SPEED$x",
+    "placeholders": {
+      "speed": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "gestureSpeedRestored": {
+    "message": "Restored $SPEED$x speed",
+    "placeholders": {
+      "speed": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "gestureSpeedExited": {
+    "message": "Speed off · $SPEED$x",
+    "placeholders": {
+      "speed": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "gestureSpeedForwarding": {
+    "message": "$SPEED$x Fast Forward",
+    "placeholders": {
+      "speed": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "gestureSeekHint": {
+    "message": "Release to seek"
+  },
+  "gestureSeekCancelHint": {
+    "message": "Release to cancel seek"
+  },
+  "gestureSeekCancelled": {
+    "message": "Seek cancelled"
+  },
+  "gestureVolumeBoostHint": {
+    "message": "Boost to $MAX$%",
+    "placeholders": {
+      "max": {
+        "content": "$1",
+        "example": "300"
+      }
+    }
+  },
+  "gestureUnlockHint": {
+    "message": "Swipe down to exit speed"
+  },
+  "gestureLockHint": {
+    "message": "Swipe up to lock speed"
+  },
+  "abLoopEnabled": {
+    "message": "A-B Loop enabled"
+  },
+  "abLoopDisabled": {
+    "message": "A-B Loop disabled"
+  },
+  "abLoopCleared": {
+    "message": "Loop cleared"
+  },
+  "abLoopTooShort": {
+    "message": "Too short (min 0.5s)"
+  },
+  "abLoopMaxReached": {
+    "message": "Max loops reached"
+  },
+  "abGuideSetA": {
+    "message": "Mark loop start"
+  },
+  "abGuideSetB": {
+    "message": "Mark loop end"
+  },
+  "abStart": {
+    "message": "Start A-B loop"
+  },
+  "abPause": {
+    "message": "Pause the loop"
+  },
+  "abResume": {
+    "message": "Resume the loop"
+  },
+  "abClearTitle": {
+    "message": "Clear A and B"
+  },
+  "abDragTitle": {
+    "message": "Drag to move · tap A / B to set the points"
+  },
+  "gestureReleaseLock": {
+    "message": "Release to lock the current speed"
+  },
+  "gestureReleaseUnlock": {
+    "message": "Release to exit speed lock"
+  }
+}

@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Gestio — Privacy policy</title>
+<style>
+  :root{
+    color-scheme:light dark;
+    --bg:#f7f8fc; --card:#fff; --ink:#1b1f2a; --muted:#5b6478;
+    --line:rgba(20,24,40,.1); --brand:#6366f1;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{--bg:#0f1220;--card:#161a2b;--ink:#e8ebf5;--muted:#a2acc4;--line:rgba(255,255,255,.1)}
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:16px/1.65 Inter,"Segoe UI",system-ui,-apple-system,sans-serif}
+  .wrap{max-width:760px;margin:0 auto;padding:48px 24px 72px}
+  header{display:flex;align-items:center;gap:14px;margin-bottom:8px}
+  header img{width:44px;height:44px}
+  h1{font-size:26px;margin:0;letter-spacing:-.01em}
+  .sub{color:var(--muted);font-size:14px;margin:2px 0 0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;
+        padding:8px 24px;margin-top:26px}
+  h2{font-size:17px;margin:24px 0 8px;color:var(--brand)}
+  p,li{font-size:15px}
+  ul{padding-left:22px}
+  code{background:rgba(99,102,241,.1);border-radius:5px;padding:1px 6px;font-size:13px}
+  table{width:100%;border-collapse:collapse;margin:12px 0;font-size:14px}
+  th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--muted);font-weight:600}
+  .lang{font-size:13px;color:var(--muted);margin-top:40px;text-transform:uppercase;letter-spacing:.08em}
+  footer{margin-top:36px;color:var(--muted);font-size:13px;border-top:1px solid var(--line);padding-top:16px}
+  a{color:var(--brand)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <svg width="44" height="44" viewBox="0 0 128 128" aria-hidden="true">
+      <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#6366f1"/><stop offset="1" stop-color="#8b5cf6"/>
+      </linearGradient></defs>
+      <rect width="128" height="128" rx="30" fill="url(#g)"/>
+      <path d="M44 34 L44 94 L86 64 Z" fill="#fff" stroke="#fff" stroke-width="7"
+            stroke-linejoin="round" stroke-linecap="round"/>
+      <path d="M95 47 L109 64 L95 81" fill="none" stroke="#fff" stroke-width="8"
+            stroke-linecap="round" stroke-linejoin="round" opacity=".72"/>
+    </svg>
+    <div>
+      <h1>Gestio — Privacy policy</h1>
+      <p class="sub">Last updated: 19 November 2026</p>
+    </div>
+  </header>
+
+  <p>Gestio is a browser extension that adds touch, mouse and keyboard gestures to HTML5 video played
+  in a web page. This policy explains exactly what the extension can access and what it does with it.</p>
+
+  <div class="card">
+    <h2>Short version</h2>
+    <ul>
+      <li><strong>No data is collected.</strong></li>
+      <li><strong>No data leaves your device.</strong> The extension makes no network requests at all.</li>
+      <li><strong>No accounts, no analytics, no advertising, no third-party services.</strong></li>
+      <li>Your settings are stored in your own browser profile.</li>
+    </ul>
+
+    <h2>What the extension stores</h2>
+    <p>Settings you change (gesture sensitivity, speed values, language, per-site rules, and so on) are
+    saved with <code>chrome.storage.local</code>, inside your browser profile on your device. They are
+    never transmitted. Removing the extension, or clearing its data, deletes them.</p>
+    <p>The extension also writes a small language cache and a per-tab lock state through the same
+    browser-local storage APIs, so the interface can paint in the right language before any
+    asynchronous call returns. These never leave the device.</p>
+
+    <h2>What the extension reads</h2>
+    <ul>
+      <li><strong>The page you are on</strong>, only to locate an HTML5 <code>&lt;video&gt;</code>
+      element and to observe pointer, touch and keyboard events in order to recognise gestures.
+      Element geometry (position and size) is read to place the on-screen indicators; page content,
+      text, form values and media are not read, stored or transmitted.</li>
+      <li><strong>The current tab's URL</strong>, when you open the popup or the options page, to show
+      whether gestures can run on that page and to match per-site rules you entered yourself.</li>
+    </ul>
+
+    <h2>Permissions and why they exist</h2>
+    <table>
+      <tr><th>Permission</th><th>Purpose</th></tr>
+      <tr><td><code>storage</code></td><td>Save your settings locally</td></tr>
+      <tr><td><code>activeTab</code></td><td>Let the popup act on the tab you opened it from</td></tr>
+      <tr><td><code>tabs</code></td><td>Read the current tab's URL for the per-site rules and status line; open the options page</td></tr>
+      <tr><td><code>scripting</code></td><td>Re-inject the gesture script into tabs that were already open when the extension was installed or updated</td></tr>
+      <tr><td><code>&lt;all_urls&gt;</code></td><td>The gesture layer must work on any website that plays video; it is not limited to a list of known sites</td></tr>
+    </table>
+
+    <h2>Remote code</h2>
+    <p>The extension contains no remote code. All scripts are bundled in the package and executed as
+    shipped. Nothing is fetched, evaluated or injected from the network.</p>
+
+    <h2>Children</h2>
+    <p>Gestio is a general-purpose media control tool. It does not collect personal information from
+    anyone, including children.</p>
+
+    <h2>Changes</h2>
+    <p>If this policy ever changes, the new version will be published at this URL and the extension's
+    changelog will note it.</p>
+
+    <h2>Contact</h2>
+    <p>Questions about this policy: <strong><a href="https://github.com/moyisuosheng/gestio/issues">open an issue on GitHub</a></strong></p>
+
+    <p class="lang">中文说明</p>
+    <p>Gestio 是一个给网页视频加触摸 / 鼠标 / 键盘手势的浏览器扩展。</p>
+    <ul>
+      <li><strong>不收集任何数据，数据不出本机。</strong>扩展不发起任何网络请求。</li>
+      <li>没有账号、没有统计、没有广告、没有第三方服务。</li>
+      <li>你改的设置只保存在自己浏览器的 <code>chrome.storage.local</code> 里，卸载扩展或清除扩展数据即被删除。</li>
+      <li>扩展只读取当前页面里的 <code>&lt;video&gt;</code> 元素及其位置尺寸，用于识别手势和摆放指示条；
+      不读取、不保存、不发送页面文字、表单内容或媒体数据。</li>
+      <li>打开弹窗或设置页时会读取当前标签页地址，用来显示"此页面是否可用"并匹配你自己填写的站点规则。</li>
+      <li>扩展内没有任何远程代码，全部脚本随安装包一起分发。</li>
+    </ul>
+    <p>有问题请到 <a href="https://github.com/moyisuosheng/gestio/issues">GitHub Issues</a> 反馈。</p>
+  </div>
+
+  <footer>Gestio · MIT licensed · <a href="https://github.com/moyisuosheng/gestio">source code</a></footer>
+</div>
+</body>
+</html>

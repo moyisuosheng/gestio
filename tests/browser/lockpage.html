@@ -1,0 +1,22 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Gestio locked-speed test</title>
+<style>
+  html,body{margin:0;background:#000;height:100%;overflow:hidden}
+  #v{width:100vw;height:100vh;display:block;background:#222}
+</style></head>
+<body>
+<video id="v" muted playsinline></video>
+<script>
+  /* Deliberately does NOT redefine playbackRate / duration.on the element:
+   * main-world.js patches HTMLMediaElement.prototype, and an own property would
+   * shadow that patch — which is exactly the interplay this page must exercise. */
+  window.__test = { rates: [], changes: 0, errors: [] };
+  const v = document.getElementById('v');
+  window.__video = v;
+  v.addEventListener('ratechange', () => {
+    window.__test.changes++;
+    window.__test.rates.push(v.playbackRate);
+  });
+  window.addEventListener('error', (e) => window.__test.errors.push(String(e.message)));
+</script>
+</body></html>

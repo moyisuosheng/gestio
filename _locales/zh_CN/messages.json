@@ -1,0 +1,113 @@
+{
+  "appName": {
+    "message": "Gestio – 视频手势控制"
+  },
+  "appShortName": {
+    "message": "Gestio"
+  },
+  "appDescription": {
+    "message": "用手势控制网页视频：滑动快进快退、长按倍速、上下滑调节音量亮度、双击分区操作与 A-B 循环复读。"
+  },
+  "gestureSpeedLocked": {
+    "message": "已锁定 $SPEED$x 倍速",
+    "placeholders": {
+      "speed": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "gestureSpeedRestored": {
+    "message": "已恢复 $SPEED$x 倍速",
+    "placeholders": {
+      "speed": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "gestureSpeedExited": {
+    "message": "已退出倍速 · $SPEED$x",
+    "placeholders": {
+      "speed": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "gestureSpeedForwarding": {
+    "message": "$SPEED$x 倍速快进中",
+    "placeholders": {
+      "speed": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "gestureSeekHint": {
+    "message": "松手跳转"
+  },
+  "gestureSeekCancelHint": {
+    "message": "松手取消跳转"
+  },
+  "gestureSeekCancelled": {
+    "message": "已取消跳转"
+  },
+  "gestureVolumeBoostHint": {
+    "message": "增强至 $MAX$%",
+    "placeholders": {
+      "max": {
+        "content": "$1",
+        "example": "300"
+      }
+    }
+  },
+  "gestureUnlockHint": {
+    "message": "下滑退出倍速"
+  },
+  "gestureLockHint": {
+    "message": "上滑锁定倍速"
+  },
+  "abLoopEnabled": {
+    "message": "A-B 循环已启用"
+  },
+  "abLoopDisabled": {
+    "message": "A-B 循环已关闭"
+  },
+  "abLoopCleared": {
+    "message": "循环已清除"
+  },
+  "abLoopTooShort": {
+    "message": "区间太短（最小 0.5 秒）"
+  },
+  "abLoopMaxReached": {
+    "message": "已达最大循环次数"
+  },
+  "abGuideSetA": {
+    "message": "标记循环起点"
+  },
+  "abGuideSetB": {
+    "message": "标记循环终点"
+  },
+  "abStart": {
+    "message": "开始 A-B 循环"
+  },
+  "abPause": {
+    "message": "暂停循环"
+  },
+  "abResume": {
+    "message": "继续循环"
+  },
+  "abClearTitle": {
+    "message": "清除 A、B 标记"
+  },
+  "abDragTitle": {
+    "message": "长按拖动可移位置 · 点 A / B 标记起止"
+  },
+  "gestureReleaseLock": {
+    "message": "松开以锁定当前倍速"
+  },
+  "gestureReleaseUnlock": {
+    "message": "松开以解除倍速锁定"
+  }
+}

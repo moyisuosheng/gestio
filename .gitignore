@@ -1,0 +1,18 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Private signing key — never commit: it defines the extension ID
+key.pem
+*.pem
+
+# Packages produced by the pack scripts
+*.crx
+*.zip
+
+# Browser test profiles / OS noise
+.DS_Store
+Thumbs.db
+*.log

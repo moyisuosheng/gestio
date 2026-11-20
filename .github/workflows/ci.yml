@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dev dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Unit tests (jsdom)
+        run: pnpm test
+
+      - name: Build store package
+        run: pnpm run pack
+
+      - name: Preflight (package, copy, artwork)
+        run: pnpm run preflight --offline
+
+      - name: Verify the archive has manifest.json at its root
+        run: |
+          unzip -l dist/gestio-*.zip | grep -q ' manifest.json$'
+          echo "manifest.json is at the archive root"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: gestio-store-package
+          path: dist/*.zip
+          if-no-files-found: error
