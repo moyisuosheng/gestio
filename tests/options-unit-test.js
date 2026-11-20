@@ -199,6 +199,31 @@ async function main() {
     check('no PRO badge/label in source', !/badge\.textContent\s*=\s*"PRO"/.test(allHtml) && !/\(PRO\)/.test(allHtml));
   }
 
+  // 11. the background worker's DEFAULT_SETTINGS must cover every key in
+  //     settings.json. readSettings() merges these defaults over a device's
+  //     stored blob, so a key that exists only in settings.json can never be
+  //     restored — that is how "Loop count" went blank on phones that had
+  //     stored settings from before the field existed (1.0.34).
+  {
+    const bg = fs.readFileSync(path.resolve(__dirname, '..', 'background.js'), 'utf8');
+    const m = bg.match(/DEFAULT_SETTINGS\s*=\s*\{([\s\S]*?)\n\};/);
+    check('background.js exposes a DEFAULT_SETTINGS object', !!m);
+    if (m) {
+      const body = m[1]
+        .replace(/\/\*[\s\S]*?\*\//g, '')            // strip block comments
+        .replace(/\n\s*\/\/.*$/gm, '\n');            // strip line comments
+      // top-level keys only: exactly two leading spaces (nested objects like
+      // abShortcuts are compared as a single key)
+      const bgKeys = new Set([...body.matchAll(/^ {2}([A-Za-z_$][\w$]*)\s*:/gm)].map(x => x[1]));
+      const missing = Object.keys(DEFAULTS).filter(k => !bgKeys.has(k));
+      check('DEFAULT_SETTINGS covers every settings.json key', missing.length === 0,
+        missing.length ? 'missing: ' + missing.join(', ') : Object.keys(DEFAULTS).length + ' keys OK');
+      const extra = [...bgKeys].filter(k => !(k in DEFAULTS));
+      check('settings.json covers every DEFAULT_SETTINGS key', extra.length === 0,
+        extra.length ? 'extra: ' + extra.join(', ') : 'no orphans');
+    }
+  }
+
   // 11. language selector exists and defaults to "auto"
   const langAuto = doc.querySelector('input[type=radio][data-k="language"][value="auto"]');
   check('language selector rendered with auto default', !!langAuto && langAuto.checked, langAuto && langAuto.checked);

@@ -176,7 +176,7 @@
     wheelSeekEnabled: true, wheelSeekDuration: 5, wheelDebounce: 200,
     volumeBoostEnabled: false, volumeBoostMax: 300, brightnessMin: 5, brightnessMax: 100,
     thumbnailPreviewEnabled: true, hapticFeedbackEnabled: true, gestureShield: true,
-    abLoopEnabled: false, abShortcutsEnabled: true, minVideoSize: 100, showGuide: true,
+    abLoopEnabled: false, abShortcutsEnabled: true, abMaxLoopsOn: false, abMaxLoopsCount: 3, minVideoSize: 100,
     minVideoArea: 40000, moveThreshold: 10, directionThreshold: 15,
     velocityThreshold: 0.3, velocitySmoothing: 0.3, speedStep: 0.25,
     clickBlockTimeout: 200, sideBarWidth: 4, sideBarHeightRatio: 0.6,

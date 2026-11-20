@@ -2,6 +2,19 @@
 
 All notable changes to Gestio. The extension version in `manifest.json` follows this file.
 
+## 1.0.37 — 2026-11-21
+
+- **"Loop count" shows its number again.** The field existed in
+  `settings.json` and on the options page, but not in the background worker's
+  `DEFAULT_SETTINGS` — and that table is what `readSettings()` merges over a
+  device's stored blob. On phones whose storage predated 1.0.34, the key was
+  missing from storage *and* from the defaults, so the options page rendered
+  an empty box (with just the × unit) and the limit silently meant "no
+  limit". The two keys now live in the worker's defaults (and in the content
+  script's offline fallback); a new parity test locks the two default tables
+  to `settings.json` so a key can never go missing this way again. A dead
+  `showGuide` default that nothing read was removed in the process.
+
 ## 1.0.36 — 2026-11-21
 
 - **Brightness actually dims the picture now.** The swipe worked (meter, value,

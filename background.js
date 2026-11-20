@@ -73,6 +73,12 @@ export const DEFAULT_SETTINGS = {
   // A-B loop
   abLoopEnabled: false,
   abShortcutsEnabled: true,
+  // Stop-after-N-passes: the count must live here too — readSettings() merges
+  // these defaults over stored blobs, so a key missing here can never be
+  // restored for a device whose storage predates the field (the options page
+  // then renders an empty "Loop count" box).
+  abMaxLoopsOn: false,
+  abMaxLoopsCount: 3,
   // On-screen A-B bar: faded while the loop is running (it is a status
   // read-out then), clear while it is idle (it is a control then).
   abPanelOpacityOn: 0.55,
@@ -109,7 +115,6 @@ export const DEFAULT_SETTINGS = {
     adjustBBack: "Ctrl+[", adjustBForward: "Ctrl+]"
   },
   // misc
-  showGuide: true
 };
 
 const SETTINGS_KEY = "gestio_settings_v1";
