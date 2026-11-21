@@ -2312,6 +2312,74 @@ async function main() {
       sr.getElementById("loop").getAttribute("data-state"));
   }
 
+  // --- a lap is a completed pass (1.0.40) -----------------------------------
+  // Two ways to count a pass that never happened, both making "3 times" stop
+  // early — one of them parked the paused playhead at A:
+  //  - pressing the loop with the playhead outside the segment (usually at B,
+  //    just marked) tripped the crossing clause and counted immediately;
+  //  - a seek slower than the 400ms busy window re-fired the crossing clause
+  //    on the stale position, and the pause then landed while that seek was
+  //    still pending — the seek completed under the pause, leaving the video
+  //    parked at A.
+  {
+    const env = makeEnv({ abLoopEnabled: true, abMaxLoopsOn: true, abMaxLoopsCount: 3 },
+      { config: { a: 100, b: 130 } });
+    env.window.eval(src);
+    await sleep(240);
+    const sr = () => env.window.document.querySelector('[data-gestio="abpanel"]').shadowRoot;
+    const aSeeks = () => env.seeks.filter((x) => Math.abs(x - 100) < 0.3).length;
+    const state = () => sr().getElementById("loop").getAttribute("data-state");
+
+    env.v.currentTime = 130.4;          // parked past B: the user just marked it
+    env.seeks.length = 0;
+    tap(env, sr().getElementById("loop"));
+    await sleep(80);
+    check("[limit3] pressing from past B parks at A without counting",
+      aSeeks() === 1 && state() === "on", `seeks=${aSeeks()} state=${state()}`);
+
+    env.seeks.length = 0;
+    env.v.currentTime = 130.4; await sleep(420);   // pass 1
+    check("[limit3] pass 1 is a full pass and repeats", aSeeks() === 1 && state() === "on",
+      `seeks=${aSeeks()} state=${state()}`);
+    env.v.currentTime = 130.4; await sleep(420);   // pass 2
+    check("[limit3] pass 2 still repeats (old code stopped here)", aSeeks() === 2 && state() === "on",
+      `seeks=${aSeeks()} state=${state()}`);
+    env.v.currentTime = 130.4; await sleep(420);   // pass 3 = the limit
+    check("[limit3] pass 3 plays out and stops at B",
+      aSeeks() === 2 && state() === "off" && env.v.paused === true,
+      `seeks=${aSeeks()} state=${state()} paused=${env.v.paused}`);
+  }
+  {
+    const env = makeEnv({ abLoopEnabled: true, abMaxLoopsOn: true, abMaxLoopsCount: 2 },
+      { config: { a: 100, b: 130 } });
+    env.window.eval(src);
+    await sleep(240);
+    const sr = () => env.window.document.querySelector('[data-gestio="abpanel"]').shadowRoot;
+    const aSeeks = () => env.seeks.filter((x) => Math.abs(x - 100) < 0.3).length;
+    const state = () => sr().getElementById("loop").getAttribute("data-state");
+    // Simulate a seek that outlives the busy window: the flag stays up and
+    // currentTime still reads the pre-jump position.
+    let fakeSeeking = false;
+    Object.defineProperty(env.v, 'seeking', { get: () => fakeSeeking, configurable: true });
+
+    tap(env, sr().getElementById("loop"));
+    await sleep(80);
+    env.v.currentTime = 130.4; await sleep(420);   // pass 1 counts and seeks
+    check("[seeking] pass 1 repeats", aSeeks() === 1 && state() === "on",
+      `seeks=${aSeeks()} state=${state()}`);
+    fakeSeeking = true;
+    env.v.currentTime = 130.4;                     // stale position, seek pending
+    await sleep(700);                              // busy window long expired
+    check("[seeking] a seek still in flight neither counts nor stops",
+      aSeeks() === 1 && state() === "on" && env.v.paused === false,
+      `seeks=${aSeeks()} state=${state()} paused=${env.v.paused}`);
+    fakeSeeking = false;
+    env.v.currentTime = 130.4; await sleep(420);   // pass 2 = the limit
+    check("[seeking] the pass after the seek lands is the last one",
+      aSeeks() === 1 && state() === "off" && env.v.paused === true,
+      `seeks=${aSeeks()} state=${state()} paused=${env.v.paused}`);
+  }
+
   // --- A and B are marks, not a start button (1.0.36) ----------------------
   // Setting A, then B, used to flip the loop on by itself: the user was still
   // placing the window when the video started jumping back to A under them.

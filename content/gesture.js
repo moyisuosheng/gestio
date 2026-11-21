@@ -1642,15 +1642,19 @@
       const now = (typeof performance !== "undefined" && performance.now) ? performance.now() : Date.now();
       // A seek reports intermediate states (`currentTime` still near B, then a
       // jump); checking the condition again inside that window fired a second
-      // seek on top of the first.
-      if (now < AB.busyUntil) return;
-      if (v.currentTime >= AB.b - 0.05 || v.currentTime < AB.a - 0.5) {
+      // seek on top of the first. The fixed 400ms window alone is not enough —
+      // a slow seek outlives it, the crossing clause re-fires on the stale
+      // position and counts a pass that never happened — so a seek that is
+      // still in flight also holds the tick off, whatever its duration.
+      if (v.seeking || now < AB.busyUntil) return;
+      if (v.currentTime >= AB.b - 0.05) {
         AB.loopCount++;
         const limit = abLoopLimit();
         if (limit && AB.loopCount >= limit) {
           // The button has two states, so a finished loop is simply off. A and B
           // stay put: pressing it again repeats the same segment, from a fresh
-          // count (abToggle resets loopCount).
+          // count (abToggle resets loopCount). The playhead is at B, so the
+          // last pass has been played in full.
           try { unpinRate(v); } catch (_) {}
           v.pause(); AB.on = false;
           cancelAnimationFrame(AB.raf);
@@ -1658,6 +1662,12 @@
           updateABPanel();
           return;
         }
+        AB.busyUntil = now + 400;
+        abJump(v, AB.a);
+      } else if (v.currentTime < AB.a - 0.5) {
+        // Out of the segment mid-loop (a page seek, a scrub): pull the playhead
+        // back. This is not a completed pass, so it does not count towards a
+        // limit — with a phantom count, "3 times" would play twice.
         AB.busyUntil = now + 400;
         abJump(v, AB.a);
       }
@@ -1730,6 +1740,18 @@
     // marks but no running loop sits at IDLE, and the watcher only repeats at
     // LOOPING — turning the button on without it lit the ring and did nothing.
     AB.phase = "LOOPING"; AB.on = true; AB.loopCount = 0;
+    // Starting from outside the segment — typically the playhead still sits at
+    // B because the user marked it there moments ago — must not count as a
+    // completed pass, or "3 times" plays twice. Park at A; the B-crossings
+    // that follow are the laps.
+    {
+      const now = (typeof performance !== "undefined" && performance.now) ? performance.now() : Date.now();
+      const p = AB.video.currentTime;
+      if (p >= AB.b - 0.05 || p < AB.a - 0.5) {
+        AB.busyUntil = now + 400;
+        abJump(AB.video, AB.a);
+      }
+    }
     abWatch(); updateABPanel(); showHint(t("abLoopEnabled"));
   };
   // Stop, do not forget: switching the feature off (popup / settings page) has

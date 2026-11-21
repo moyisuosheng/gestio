@@ -2,6 +2,28 @@
 
 All notable changes to Gestio. The extension version in `manifest.json` follows this file.
 
+## 1.0.40 — 2026-11-21
+
+- **"Stop after N loops" now means N full passes, stopped at B.** Two ways
+  counted a pass that never happened, and together they made "3 times" stop
+  after two — with the paused playhead left at A, which read as "it paused at
+  the loop start on the 3rd pass":
+  - Pressing the loop button with the playhead outside the segment (usually
+    at B, which is where it sits right after you marked it) tripped the
+    crossing clause and counted immediately. The button now parks at A
+    without counting; the B-crossings that follow are the laps.
+  - A seek slower than the 400ms busy window re-fired the crossing clause on
+    the stale position, counting a phantom pass — and when the limit tripped
+    there, the pause landed while that seek was still pending, so the seek
+    completed under the pause and parked the video at A. The tick now also
+    holds off while a seek is in flight (`seeking`), whatever its duration.
+  - Scrubbing out of the segment mid-loop still pulls the playhead back, but
+    no longer counts it: a lap is a completed pass.
+  The stop itself is unchanged: A/B stay put, the button goes back to its
+  "off" state, and pressing it again runs the same segment from a fresh
+  count. Verified against the old code — the new jsdom checks fail there
+  ("pass 2 still repeats" → `state=off`) and pass with the fix.
+
 ## 1.0.39 — 2026-11-21
 
 - **The number fields stop drawing their caret below the digits.** The value
