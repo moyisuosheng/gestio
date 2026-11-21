@@ -2,6 +2,20 @@
 
 All notable changes to Gestio. The extension version in `manifest.json` follows this file.
 
+## 1.0.41 — 2026-11-21
+
+### Fixed
+
+- **A motionless long press no longer loses its speed UI (and its feedback) after 3 seconds.**
+  The tier row carried a 3s safety auto-hide (against a swallowed end event
+  leaving the row stuck), but a stationary hold produces no moves, so the
+  sweep always fired mid-hold: the row vanished ~3s into every motionless
+  long press, and its suppressed latch then swallowed the drag feedback for
+  the rest of the hold — acceleration looked dead while the finger was still
+  down. A live hold now defers the sweep (bounded by a 90s ceiling so a
+  truly lost finger is still cleaned up), and a live hold re-arms the latch,
+  so even a mid-hold hide (tab switch) is recovered by the next move.
+
 ## 1.0.40 — 2026-11-21
 
 - **"Stop after N loops" now means N full passes, stopped at B.** Two ways

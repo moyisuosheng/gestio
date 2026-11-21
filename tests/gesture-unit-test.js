@@ -923,8 +923,13 @@ async function main() {
     await sleep(10);
     check('[lp] HUD visible during a stuck drag', !!tiersEl() && tiersEl().classList.contains('show'));
     await sleep(3200); // no pointerup at all
-    check('[lp] HUD auto-hides when the end event is lost',
-      !!tiersEl() && !tiersEl().classList.contains('show'), 'class=' + (tiersEl() && tiersEl().className));
+    // 1.0.41: a LIVE hold keeps the row — the old 3s sweep fired mid-hold on
+    // every motionless long press, which read as "the UI gives up while I am
+    // still holding". Cleanup for a truly lost finger is bounded elsewhere.
+    check('[lp] a live hold keeps the row past the 3s sweep',
+      !!tiersEl() && tiersEl().classList.contains('show'), 'class=' + (tiersEl() && tiersEl().className));
+    check('[lp] a live hold keeps the rate past the 3s sweep',
+      Math.abs(v.playbackRate - 4) < 0.01, 'rate=' + v.playbackRate);
     fire(env, 'pointerup', 600, 360);
     await sleep(20);
 
@@ -945,6 +950,62 @@ async function main() {
     check('[lp] gesture works again after a cancel', Math.abs(v.playbackRate - 2) < 0.01,
       before2 + ' -> ' + v.playbackRate);
     fire(env, 'pointerup', 600, 360);
+  }
+
+  // 13b. A motionless hold keeps its UI and its feedback (1.0.41): the 3s
+  // sweep used to hide the row mid-hold, and its suppressed latch then
+  // swallowed every later drag's feedback — acceleration looked dead while
+  // the finger was still down.
+  {
+    const env = makeEnv();
+    const v = env.v, doc = env.window.document;
+    env.window.eval(src);
+    await sleep(50);
+    const tiersEl = () => {
+      const hud = doc.querySelector('[data-gestio="hud"]');
+      return (hud && hud.shadowRoot) ? hud.shadowRoot.querySelector('.tiers') : null;
+    };
+    const PX = SETTINGS.longPressDragSensitivity;
+
+    fire(env, 'pointerdown', 600, 360);
+    await sleep(360); // longPressDelay = 300ms
+    // hold perfectly still past the 3s sweep window
+    await sleep(3400);
+    let el = tiersEl();
+    check('[lp3s] a motionless hold keeps the row past the sweep',
+      !!el && el.classList.contains('show') && el.style.display !== 'none',
+      'display=' + (el && el.style.display) + ' class=' + (el && el.className));
+    check('[lp3s] a motionless hold keeps the rate',
+      Math.abs(v.playbackRate - 2) < 0.01, 'rate=' + v.playbackRate);
+
+    // feedback still works after the sweep window
+    fire(env, 'pointermove', 600 + PX, 360);
+    await sleep(10);
+    el = tiersEl();
+    check('[lp3s] dragging after the sweep window still retunes',
+      Math.abs(v.playbackRate - 3) < 0.01, 'rate=' + v.playbackRate);
+    check('[lp3s] dragging after the sweep window still shows the row',
+      !!el && el.classList.contains('show'), 'class=' + (el && el.className));
+
+    // a mid-hold hide (tab switch) must not leave the hold blind: the live
+    // hold re-arms the row on its next move
+    env.window.dispatchEvent(new env.window.Event('blur'));
+    await sleep(30);
+    el = tiersEl();
+    check('[lp3s] a mid-hold blur hides the row',
+      !!el && !el.classList.contains('show'), 'class=' + (el && el.className));
+    check('[lp3s] a mid-hold blur leaves the rate alone',
+      Math.abs(v.playbackRate - 3) < 0.01, 'rate=' + v.playbackRate);
+    fire(env, 'pointermove', 600 + PX * 2, 360);
+    await sleep(10);
+    el = tiersEl();
+    check('[lp3s] the live hold re-arms the row after a mid-hold hide',
+      !!el && el.classList.contains('show') && /4x/.test(el.innerHTML),
+      'class=' + (el && el.className) + ' html=' + (el && el.innerHTML.replace(/\s+/g, ' ').slice(0, 90)));
+    fire(env, 'pointerup', 600 + PX * 2, 360);
+    await sleep(60);
+    check('[lp3s] lifting still hides the row',
+      !!el && !el.classList.contains('show'), 'class=' + (el && el.className));
   }
 
   // 14. Seek preview card + vertical lock.

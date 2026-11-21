@@ -1,6 +1,6 @@
 {
   "name": "gestio",
-  "version": "1.0.40",
+  "version": "1.0.41",
   "private": true,
   "description": "Gesture control for web video: speed, seek, brightness and volume without hunting for tiny buttons.",
   "license": "MIT",

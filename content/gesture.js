@@ -1083,6 +1083,9 @@
   // The current rate is appended when it is not one of the preset tiers, so
   // fine-grained dragging (e.g. 1.75x) still has a highlighted value.
   let tiersTimer = 0, tiersHideTimer = 0, tiersSuppressed = false;
+  // Hard ceiling for the sweep below: a stroke whose end event never arrives
+  // at all gets cleaned up after this long, live or not.
+  const TIER_SWEEP_MAX_MS = 90000;
   const fmtRate = (x) => String(+(Math.round(x * 100) / 100));
   // Hiding must NOT depend on CSS: if any rule, inline style or page style
   // overrides the class, the row would stay on screen. `display:none` is an
@@ -1102,7 +1105,16 @@
   const CHEV = '<span class="chev"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">'
     + '<path d="M8 5v14l11-7z"/></svg></span>';
   const showTiers = (active) => {
-    if (tiersSuppressed) return;
+    if (tiersSuppressed) {
+      // The latch stops a late post-lift touchmove (Android fires a few) from
+      // resurrecting the row. A LIVE speed hold is the opposite case: its
+      // moves are real feedback, and a mid-hold hide — a tab switch, or the
+      // 3s sweep below before it learned to defer — must not leave the hold
+      // blind, so a hold re-arms here instead.
+      const c = currentStroke();
+      if (!(c && c.s && c.s.active && c.s.longPressTriggered)) return;
+      tiersSuppressed = false;
+    }
     ensureHud();
     const all = tierList(active);
     // On a narrow phone the full ladder would overflow the viewport, so show a
@@ -1129,9 +1141,20 @@
     }
     tiersEl.classList.add("show");
     // Safety auto-hide: native-fullscreen builds sometimes swallow the end
-    // event, which used to leave the indicator stuck on screen forever.
+    // event, which used to leave the indicator stuck on screen forever. A
+    // LIVE speed hold defers the sweep instead of dying under it: a
+    // stationary hold produces no moves, so the plain 3s hide fired mid-hold
+    // on every motionless long press — exactly "the UI disappears after a
+    // while even though I never lifted my finger". The deferral is bounded
+    // by TIER_SWEEP_MAX_MS so a truly lost finger is still cleaned up.
     clearTimeout(tiersTimer);
-    tiersTimer = setTimeout(hideTiers, 3000);
+    const tiersShownAt = Date.now();
+    tiersTimer = setTimeout(function sweep() {
+      const c = currentStroke();
+      const live = !!(c && c.s && c.s.active && c.s.longPressTriggered);
+      if (live && Date.now() - tiersShownAt < TIER_SWEEP_MAX_MS) { tiersTimer = setTimeout(sweep, 3000); return; }
+      hideTiers();
+    }, 3000);
   };
   // --- volume / brightness meters -------------------------------------------
   // One card per slider: brightness pinned to the left edge, volume to the
