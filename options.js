@@ -58,6 +58,7 @@ const SCHEMA = [
 
   // ---- double tap & wheel ----
   ["doubleTapEnabled", "Double tap", "bool", "g-tap", "Enable zone-based double-tap actions."],
+  ["blockNativeDoubleClick", "Block native double-click seek", "bool", "g-tap", "Most players jump ±10s on a double-click of their own. Block that so only Gestio's double tap seeks — Gestio's tap logic does not use the browser's dblclick event."],
   ["doubleTapInterval", "Double-tap interval (ms)", "num", "g-tap", "Max gap between the two taps.", [150, 600, 25]],
   ["doubleTapSeekDuration", "Seek duration", "num", "g-tap", "Seconds jumped per double tap.", [2, 60, 1], true],
   ["doubleTapAccumulateEnabled", "Accumulate taps", "bool", "g-tap", "Repeated taps in the same zone add up, and the jump is applied once the burst ends (3rd tap = 20s, 4th = 30s…).", true],

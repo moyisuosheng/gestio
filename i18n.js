@@ -129,6 +129,9 @@
     /* ---- double tap & wheel ---- */
     "Double tap": "双击",
     "Enable zone-based double-tap actions.": "启用分区双击动作。",
+    "Block native double-click seek": "屏蔽播放器原生双击快进",
+    "Most players jump ±10s on a double-click of their own. Block that so only Gestio's double tap seeks — Gestio's tap logic does not use the browser's dblclick event.":
+      "多数播放器自身会在双击时快进/后退 10 秒。开启后只由 Gestio 的双击来跳转——Gestio 的双击逻辑不依赖浏览器的 dblclick 事件，两者互不干扰。",
     "Double-tap interval (ms)": "双击间隔（毫秒）",
     "Max gap between the two taps.": "两次点击之间的最大间隔。",
     "Seek duration": "跳转时长",
@@ -349,7 +352,6 @@
     "Back": "快退",
     "Forward": "快进",
     "Play": "播放",
-    "Gestures": "手势说明",
     "Left-handed mode mirrors the zones automatically. Choose ": "左手模式会自动镜像分区。在单手设置中选择",
     " in One-handed settings to assign each zone yourself.": "可自行分配每个分区的动作。",
     "Left-handed mode mirrors the zones automatically. Choose Custom in One-handed settings to assign each zone yourself.": "左手模式会自动镜像分区。在单手设置中选择“自定义”可自行分配每个分区的动作。",

@@ -2676,6 +2676,53 @@ async function main() {
       Math.abs(env.v.playbackRate - 1) < 0.01, "rate=" + env.v.playbackRate);
   }
 
+  // 13c. Native double-click seek suppression (1.0.42): the site's DOM
+  // dblclick is what makes most players jump ±10s on their own. Gestio's own
+  // double tap uses the pointer/touch stream, so blocking dblclick must not
+  // disturb it, and the block must be opt-out and video-only.
+  {
+    const mkDbl = async (overrides) => {
+      const env = makeEnv(overrides);
+      env.window.eval(src);
+      await sleep(40);
+      return env;
+    };
+    const dbl = (env, x, y, target) => {
+      const P = env.window.MouseEvent;
+      const ev = new P("dblclick", { bubbles:true, cancelable:true, clientX:x, clientY:y, button:0 });
+      (target || env.v).dispatchEvent(ev);
+      return ev;
+    };
+    const blocked = (ev) => ev.defaultPrevented;
+
+    const on = await mkDbl({});
+    check('[dbl] native dblclick on the video is suppressed by default',
+      blocked(dbl(on, 600, 360)));
+    // Clicks on Gestio's own overlays must stay untouched (isUI), or the HUD
+    // controls would go dead on a double-click.
+    const own = on.window.document.createElement('div');
+    own.setAttribute('data-gestio', 'probe');
+    on.window.document.body.appendChild(own);
+    check('[dbl] dblclick on our own overlay is left alone', !blocked(dbl(on, 600, 360, own)));
+
+    const off = await mkDbl({ blockNativeDoubleClick: false });
+    check('[dbl] turning the switch off restores the site dblclick',
+      !blocked(dbl(off, 600, 360)));
+
+    // Gestio's own double tap must survive the dblclick block: it is timed off
+    // pointerup, never off the DOM dblclick event.
+    const tapEnv = await mkDbl({});
+    fire(tapEnv, 'pointerdown', 900, 360, { pointerType: 'mouse' });
+    fire(tapEnv, 'pointerup', 900, 360, { pointerType: 'mouse' });
+    await sleep(60);
+    fire(tapEnv, 'pointerdown', 900, 360, { pointerType: 'mouse' });
+    fire(tapEnv, 'pointerup', 900, 360, { pointerType: 'mouse' });
+    await sleep(60);
+    check('[dbl] Gestio right-zone double tap still seeks forward',
+      tapEnv.seeks.length > 0 && tapEnv.seeks[tapEnv.seeks.length - 1] > 100,
+      JSON.stringify(tapEnv.seeks.slice(-2)));
+  }
+
   const passed = results.filter(r=>r.pass).length;
   console.log(`\n${passed}/${results.length} passed`);
   process.exit(passed===results.length?0:1);

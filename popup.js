@@ -27,11 +27,29 @@ async function load() {
   for (const k of NUMS) { const el = document.getElementById(k); if (el) el.value = s[k]; }
 }
 async function save(k, v) {
-  const r = await chrome.runtime.sendMessage({ action: "set_settings", settings: { [k]: v } });
+  // MV3 workers are reclaimed aggressively on Android. A failed message used
+  // to reject here and leave the switch visually flipped but unsaved. Fall
+  // back to a direct storage write, the same route checkStatus/load() use.
+  let ok = false;
+  try {
+    const r = await chrome.runtime.sendMessage({ action: "set_settings", settings: { [k]: v } });
+    ok = !!(r && r.ok !== false);
+  } catch (_) {}
+  if (!ok) {
+    try {
+      const obj = await chrome.storage.local.get("gestio_settings_v1");
+      const stored = (obj && obj["gestio_settings_v1"]) || {};
+      await chrome.storage.local.set({ gestio_settings_v1: { ...stored, [k]: v } });
+      // The worker missed the message; make pages re-read storage on their own
+      // (content scripts also read storage directly on next gesture/settings).
+      ok = true;
+    } catch (_) {}
+  }
   chrome.tabs.query({}, (tabs) => {
     for (const tab of tabs) chrome.tabs.sendMessage(tab.id, { action: "settings_changed" }).catch(() => {});
   });
-  return r;
+  if (!ok) console.warn("gestio: could not save", k);
+  return { ok };
 }
 // --- A-B card visibility ----------------------------------------------------
 // This one is not a setting: the card is tucked away per PAGE, so the switch

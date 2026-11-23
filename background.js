@@ -71,6 +71,11 @@ export const DEFAULT_SETTINGS = {
   // "fullscreen" (default, page keeps scrolling) | "edge" | "always"
   nonFullscreenVertical: "fullscreen",
   gesturePlayWhenPaused: false,      // a gesture on a paused video stays paused
+  // Suppress the site's native double-click seek: many players jump ±10s on
+  // dblclick, which doubled up with Gestio's own double-tap action. Gestio's
+  // double tap is driven by the touch/pointer stream, not DOM dblclick, so
+  // blocking it is independent and safe.
+  blockNativeDoubleClick: true,
   // A-B loop
   abLoopEnabled: false,
   abShortcutsEnabled: true,

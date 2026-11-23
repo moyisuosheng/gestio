@@ -2,6 +2,28 @@
 
 All notable changes to Gestio. The extension version in `manifest.json` follows this file.
 
+## 1.0.42 — 2026-11-24
+
+### Added
+
+- **Settings → Double tap & wheel → "Block native double-click seek"** (on by
+  default). Most video sites jump ±10s on their own when the page receives a
+  DOM `dblclick`, which stacked on top of Gestio's zone double tap and made a
+  single double tap jump twice. The site's `dblclick` is now suppressed on the
+  video at document capture; Gestio's own double tap is driven by the
+  pointer/touch stream in `onEnd`, never by `dblclick`, so it is unaffected.
+  Clicks on Gestio's own overlays are exempt; turning the switch off restores
+  the site's native behaviour.
+
+### Fixed (from a full interaction / UI audit)
+
+- Popup settings toggles now fall back to a direct `storage.local` write when
+  the MV3 service worker is asleep (Android reclaims it aggressively): a
+  failed message used to leave the switch visually flipped but unsaved.
+- The content script's offline fallback table now carries `abPanelOpacityOn`
+  / `abPanelOpacityOff`, matching the other three default tables.
+- Removed a duplicate `"Gestures"` translation key that shadowed the nav label.
+
 ## 1.0.41 — 2026-11-21
 
 ### Fixed

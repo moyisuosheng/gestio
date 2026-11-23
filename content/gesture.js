@@ -174,7 +174,7 @@
     // Do gestures start playback on a paused video? Off by default: the value
     // changes either way, and a paused picture should stay still.
     gesturePlayWhenPaused: false,
-    doubleTapEnabled: true, doubleTapInterval: 300, doubleTapSeekDuration: 10,
+    doubleTapEnabled: true, blockNativeDoubleClick: true, doubleTapInterval: 300, doubleTapSeekDuration: 10,
     doubleTapAccumulateEnabled: false, doubleTapFullscreenEnabled: true,
     oneHandedMode: "right", gridLayout: "3x1", gestureAreaRatio: 0.8,
     leftDoubleTap: "seekBackward", centerDoubleTap: "playPause", rightDoubleTap: "seekForward",
@@ -184,7 +184,8 @@
     wheelSeekEnabled: true, wheelSeekDuration: 5, wheelDebounce: 200,
     volumeBoostEnabled: false, volumeBoostMax: 300, brightnessMin: 5, brightnessMax: 100,
     thumbnailPreviewEnabled: true, hapticFeedbackEnabled: true, gestureShield: true,
-    abLoopEnabled: false, abShortcutsEnabled: true, abMaxLoopsOn: false, abMaxLoopsCount: 3, minVideoSize: 100,
+    abLoopEnabled: false, abShortcutsEnabled: true, abMaxLoopsOn: false, abMaxLoopsCount: 3,
+    abPanelOpacityOn: 0.55, abPanelOpacityOff: 0.95, minVideoSize: 100,
     hintOpacity: 1,
     minVideoArea: 40000, moveThreshold: 10, directionThreshold: 15,
     velocityThreshold: 0.3, velocitySmoothing: 0.3, speedStep: 0.25,
@@ -3688,6 +3689,19 @@
     document.addEventListener("contextmenu", (e) => {
       if (!S || !S.enabled || !shouldBlockNative()) return;
       if (findVideo(e.clientX, e.clientY, false) && e.cancelable) e.preventDefault();
+    }, true);
+    // Native double-click seek: most players jump ±10s on DOM `dblclick`.
+    // Gestio's own double-tap is driven by the pointer/touch stream in onEnd,
+    // never by `dblclick`, so suppressing this event here only silences the
+    // site's native handler — it cannot touch our zone actions. Capture on
+    // document so it runs before any player listener, and only on the video
+    // so clicks on the page's controls stay untouched.
+    document.addEventListener("dblclick", (e) => {
+      if (!S || !S.enabled || S.blockNativeDoubleClick === false) return;
+      if (isUI(e.target)) return;
+      if (!findVideo(e.clientX, e.clientY, false)) return;
+      if (e.cancelable) e.preventDefault();
+      e.stopPropagation();
     }, true);
     // Click suppression: after any real gesture, the browser/player would fire
     // a synthetic click (play/pause toggle, seek jump). Block it for

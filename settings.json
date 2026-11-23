@@ -22,6 +22,7 @@
   "nonFullscreenVertical": "fullscreen",
   "gesturePlayWhenPaused": false,
   "doubleTapEnabled": true,
+  "blockNativeDoubleClick": true,
   "doubleTapInterval": 300,
   "doubleTapSeekDuration": 10,
   "doubleTapAccumulateEnabled": false,
